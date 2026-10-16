@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite it as below. Built with AI assistance (Claude, Anthropic); see the README."
+title: "Show Me Your Pie: who holds France's wealth and income, slice by slice, 1900–2024"
+type: software
+authors:
+  - name: "Show Me Your Pie contributors"
+  - alias: "Zboule"
+repository-code: "https://github.com/Zboule/show-me-your-pie"
+url: "https://zboule.github.io/show-me-your-pie/"
+license:
+  - MIT
+  - CC-BY-4.0
+version: "0.4.0"
+date-released: "2026-10-16"
+keywords:
+  - inequality
+  - wealth distribution
+  - distributional national accounts
+  - France
+  - reproducible research

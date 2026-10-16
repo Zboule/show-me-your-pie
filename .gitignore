@@ -1,0 +1,6 @@
+data/raw/
+.playwright-mcp/
+__pycache__/
+*.pyc
+.DS_Store
+*.part
