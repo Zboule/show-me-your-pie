@@ -25,3 +25,17 @@ review.
   and keep the test suite green.
 - Prefer showing a disagreement between sources over choosing one silently.
 - Keep the page in plain language; put technical detail in `docs/`.
+
+## Deploying the app
+
+The app is served by GitHub Pages from the `gh-pages` branch, which holds
+only the contents of `site/`. After rebuilding and committing on `main`:
+
+```bash
+git subtree split --prefix site -b gh-pages && git push -f origin gh-pages
+```
+
+There is no continuous integration yet: the publishing account's token lacks
+the `workflow` scope. To add it, run
+`gh auth refresh -h github.com -u Zboule -s workflow`, then add a workflow that
+runs `fetch.py`, `build_data.py`, `paper_numbers.py` and the tests.
