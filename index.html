@@ -1,0 +1,1372 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Show Me Your Pie</title>
+<meta name="description" content="Who holds France's wealth and income, slice by slice of the population from 1900 to today, with every source and assumption open to check.">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+/* Layout: a dark hero band that states the finding with one interactive picture, then numbered chapters in a reading column with a sticky chapter rail on wide screens; charts sit in quiet cards; one control bar scopes every chapter chart. */
+:root {
+  --bg: #f2f4f7;
+  --surface: #ffffff;
+  --surface-2: #f7f8fa;
+  --ink: #0d1626;
+  --ink-2: #47526a;
+  --muted: #5e6778;
+  --grid: #e3e7ee;
+  --axis: #c4cad6;
+  --ring: rgba(13, 22, 38, 0.09);
+  --accent: #2a78d6;
+  --accent-ink: #1d5fb0;
+  --band: rgba(110, 120, 140, 0.13);
+  --growth: #7f8898;
+  --l1: #2f6fbf; --l2: #1a8f84; --l3: #4f9a3a; --l4: #b98a00; --l5: #d9661f; --l6: #cc3d4f; --l7: #8a35c4;
+  --gain: #2a78d6; --loss: #e34948;
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100;
+  --s5: #e87ba4; --s6: #008300; --s7: #6250d6; --s8: #e34948;
+  /* The hero keeps one dark look in both themes. */
+  --hero-bg: #0b1322;
+  --hero-ink: #eef2f8;
+  --hero-ink-2: #bcc6d8;
+  --hero-line: rgba(238, 242, 248, 0.14);
+  --font-display: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+  --font-prose: "Newsreader", Georgia, "Times New Roman", serif;
+  --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --radius: 14px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0c111b; --surface: #151b27; --surface-2: #1a2130; --ink: #edf1f7; --ink-2: #b9c2d2; --muted: #8590a3;
+    --grid: #252d3c; --axis: #364052; --ring: rgba(255, 255, 255, 0.08); --accent: #5b9df0; --accent-ink: #8ab9f5;
+    --band: rgba(150, 160, 180, 0.12); --growth: #6d7686; --gain: #3987e5; --loss: #e66767;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #008300; --s7: #9085e9; --s8: #e66767; --l1: #4f8fe0; --l2: #2fb5a6; --l3: #73bf5b; --l4: #e0b23a; --l5: #f08a4a; --l6: #ea6070; --l7: #b072ea;
+    --hero-bg: #070b14;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0c111b; --surface: #151b27; --surface-2: #1a2130; --ink: #edf1f7; --ink-2: #b9c2d2; --muted: #8590a3;
+  --grid: #252d3c; --axis: #364052; --ring: rgba(255, 255, 255, 0.08); --accent: #5b9df0; --accent-ink: #8ab9f5;
+  --band: rgba(150, 160, 180, 0.12); --growth: #6d7686; --gain: #3987e5; --loss: #e66767;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #008300; --s7: #9085e9; --s8: #e66767; --l1: #4f8fe0; --l2: #2fb5a6; --l3: #73bf5b; --l4: #e0b23a; --l5: #f08a4a; --l6: #ea6070; --l7: #b072ea;
+  --hero-bg: #070b14;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 76px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { animation: none !important; transition: none !important; } }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font-family: var(--font-prose); font-size: 18px; line-height: 1.6;
+}
+.gutter { padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.08; text-wrap: balance; margin: 0; letter-spacing: -0.01em; }
+h2 { font-size: clamp(1.7rem, 3.4vw, 2.35rem); font-weight: 700; }
+h3 { font-size: 1.08rem; font-weight: 650; letter-spacing: 0; }
+p { margin: 0; }
+a { color: var(--accent-ink); text-underline-offset: 2px; }
+.ui { font-family: var(--font-ui); }
+.eyebrow { font-family: var(--font-ui); font-size: 12px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); }
+.num { font-variant-numeric: tabular-nums; }
+
+/* ---------- hero ---------- */
+.hero { --l1: #4f8fe0; --l2: #2fb5a6; --l3: #73bf5b; --l4: #e0b23a; --l5: #f08a4a; --l6: #ea6070; --l7: #b072ea; background: var(--hero-bg); color: var(--hero-ink); padding-block: 40px 34px; position: relative; overflow: hidden; }
+.hero::before { content: ""; position: absolute; inset: 0; background: radial-gradient(1100px 420px at 85% -10%, rgba(98, 80, 214, 0.28), transparent 60%), radial-gradient(800px 380px at 0% 110%, rgba(42, 120, 214, 0.22), transparent 60%); pointer-events: none; }
+.hero-inner { max-width: 1180px; margin: 0 auto; position: relative; display: grid; gap: 22px; }
+.hero .eyebrow { color: var(--hero-ink-2); }
+.hero h1 { font-size: clamp(2.6rem, 7vw, 5rem); font-weight: 800; letter-spacing: -0.03em; }
+.hero h1 em { font-style: normal; background: linear-gradient(92deg, #8f86ff, #5fb3ff 60%, #63e0b0); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hero .lede { font-size: clamp(1.1rem, 2vw, 1.32rem); color: var(--hero-ink-2); max-width: 60ch; }
+.hero .lede strong { color: var(--hero-ink); font-weight: 600; }
+.pie-stage { background: rgba(255, 255, 255, 0.035); border: 1px solid var(--hero-line); border-radius: 18px; padding: 18px 18px 14px; display: grid; gap: 12px; }
+.stage-head { display: flex; flex-wrap: wrap; gap: 12px 18px; align-items: center; justify-content: space-between; font-family: var(--font-ui); }
+.stage-title { font-family: var(--font-display); font-size: 1.15rem; font-weight: 650; }
+.hero-chart { position: relative; width: 100%; }
+.hero-chart svg { display: block; width: 100%; overflow: visible; }
+.hero-chart text { font-family: var(--font-ui); fill: var(--hero-ink-2); font-size: 12px; }
+.hero-chart .big { fill: var(--hero-ink); font-weight: 650; font-size: 13px; }
+.hero-caption { font-size: 1.12rem; color: var(--hero-ink); max-width: 70ch; min-height: 3.4em; }
+.hero-caption .hl { color: #b7b0ff; font-weight: 600; }
+.timeline { display: flex; align-items: center; gap: 12px; font-family: var(--font-ui); font-size: 13px; color: var(--hero-ink-2); }
+.timeline input[type=range] { flex: 1; min-width: 0; accent-color: #8f86ff; }
+.yearbig { font-family: var(--font-display); font-size: 2rem; font-weight: 800; color: var(--hero-ink); min-width: 3.2ch; font-variant-numeric: tabular-nums; }
+.play { font: inherit; font-weight: 600; border: 1px solid var(--hero-line); background: rgba(255, 255, 255, 0.08); color: var(--hero-ink); border-radius: 999px; padding: 7px 14px; cursor: pointer; }
+.play:hover { background: rgba(255, 255, 255, 0.14); }
+.chips { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+.chip { font-family: var(--font-ui); font-size: 13px; border-radius: 999px; padding: 6px 12px; cursor: pointer; border: 1px solid var(--hero-line); background: transparent; color: var(--hero-ink-2); }
+.chip[aria-pressed="true"] { background: var(--hero-ink); color: var(--hero-bg); border-color: var(--hero-ink); }
+.findings { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 900px) { .findings { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .findings { grid-template-columns: minmax(0, 1fr); } }
+.hero-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-family: var(--font-ui); font-size: 12.5px; color: var(--hero-ink-2); }
+.hero-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.hero-legend b { color: var(--hero-ink); font-weight: 650; font-variant-numeric: tabular-nums; }
+.hero-legend i { width: 11px; height: 11px; border-radius: 3px; display: inline-block; }
+.hero .callout { background: rgba(255, 255, 255, 0.04); border-color: var(--hero-line); color: var(--hero-ink-2); }
+.hero .callout b { color: var(--hero-ink); }
+.estimate { font-family: var(--font-ui); font-size: 12px; color: #ffd27a; border: 1px solid rgba(255, 210, 122, 0.4); border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
+.skip { position: absolute; left: 12px; top: -40px; z-index: 50; background: var(--surface); color: var(--ink); padding: 8px 12px; border-radius: 8px; font-family: var(--font-ui); }
+.skip:focus { top: 12px; }
+details.expert { border: 1px dashed var(--axis); border-radius: var(--radius); padding: 4px 14px 10px; background: var(--surface-2); }
+details.expert > summary { cursor: pointer; font-family: var(--font-ui); font-size: 13.5px; font-weight: 600; color: var(--accent-ink); padding-block: 10px; }
+details.expert[open] > summary { margin-bottom: 8px; }
+details.expert > * + * { margin-top: 12px; }
+.finding { border: 1px solid var(--hero-line); border-radius: var(--radius); padding: 16px 18px; display: grid; gap: 6px; align-content: start; background: rgba(255, 255, 255, 0.03); }
+.finding .k { font-family: var(--font-ui); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--hero-ink-2); }
+.finding .v { font-family: var(--font-display); font-size: 1.9rem; font-weight: 750; line-height: 1.05; color: var(--hero-ink); }
+.finding .v small { font-size: 0.55em; font-weight: 600; color: var(--hero-ink-2); }
+.finding p { font-family: var(--font-ui); font-size: 13.5px; line-height: 1.5; color: var(--hero-ink-2); }
+.hero .note { color: var(--hero-ink-2); }
+
+/* ---------- control bar ---------- */
+.controls { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: saturate(140%) blur(10px); -webkit-backdrop-filter: saturate(140%) blur(10px); border-bottom: 1px solid var(--grid); }
+.controls-inner { max-width: 1180px; margin: 0 auto; padding-block: 10px; display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; font-family: var(--font-ui); font-size: 13px; }
+.ctl { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); }
+.ctl-label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.seg { display: inline-flex; background: var(--surface-2); border: 1px solid var(--grid); border-radius: 10px; padding: 3px; gap: 2px; flex-wrap: wrap; }
+.seg button { font: inherit; font-size: 13px; padding: 6px 11px; border: 0; border-radius: 8px; background: transparent; color: var(--ink-2); cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12); font-weight: 600; }
+select { font: inherit; font-size: 13px; padding: 6px 8px; border-radius: 9px; border: 1px solid var(--grid); background: var(--surface); color: var(--ink); }
+details.adv { position: relative; }
+details.adv > summary { list-style: none; cursor: pointer; border: 1px solid var(--grid); background: var(--surface); border-radius: 9px; padding: 6px 11px; color: var(--ink-2); font-size: 13px; }
+details.adv > summary::-webkit-details-marker { display: none; }
+details.adv[open] > summary { color: var(--ink); border-color: var(--axis); }
+.adv-panel { position: absolute; right: 0; top: calc(100% + 8px); width: min(420px, calc(100vw - 36px)); background: var(--surface); border: 1px solid var(--grid); border-radius: 12px; box-shadow: 0 18px 40px rgba(0, 0, 0, 0.16); padding: 14px; display: grid; gap: 12px; z-index: 30; }
+.adv-panel label { display: grid; gap: 4px; font-size: 12.5px; color: var(--ink-2); }
+.adv-panel .hint { font-size: 12px; color: var(--muted); line-height: 1.45; }
+.status { font-size: 12px; color: var(--accent-ink); }
+button:focus-visible, select:focus-visible, summary:focus-visible, input:focus-visible, .term:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- chapters ---------- */
+.layout { max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 40px; }
+.rail { position: sticky; top: 76px; align-self: start; padding-block: 36px; font-family: var(--font-ui); font-size: 13px; }
+.rail ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; counter-reset: ch; }
+.rail li { counter-increment: ch; }
+.rail a { display: flex; gap: 10px; padding: 6px 8px; border-radius: 8px; color: var(--ink-2); text-decoration: none; line-height: 1.3; }
+.rail a::before { content: counter(ch, decimal-leading-zero); color: var(--muted); font-variant-numeric: tabular-nums; }
+.rail a:hover { background: var(--surface-2); color: var(--ink); }
+.rail a.active { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06); }
+@media (max-width: 1000px) { .layout { grid-template-columns: minmax(0, 1fr); } .rail { display: none; } }
+main { min-width: 0; padding-block: 8px 72px; }
+.chapter { padding-block: 52px 8px; display: grid; gap: 16px; border-bottom: 1px solid var(--grid); }
+.chapter:last-of-type { border-bottom: 0; }
+.chapter > header { display: grid; gap: 10px; max-width: 72ch; }
+.chapter .kicker { font-family: var(--font-ui); font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent-ink); }
+.prose { max-width: 70ch; }
+.summary-line { font-size: 1.12rem; line-height: 1.55; }
+.summary-line strong { font-weight: 600; white-space: nowrap; }
+.nw { white-space: nowrap; }
+.note { font-family: var(--font-ui); font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+.callout { border: 1px solid var(--grid); background: var(--surface-2); border-radius: 12px; padding: 12px 16px; font-family: var(--font-ui); font-size: 14px; color: var(--ink-2); line-height: 1.55; max-width: 76ch; }
+.callout b { color: var(--ink); }
+.card { background: var(--surface); border: 1px solid var(--ring); border-radius: var(--radius); padding: 16px 16px 12px; min-width: 0; box-shadow: 0 1px 2px rgba(13, 22, 38, 0.04); }
+.card h3 { margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+.card h3 i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 14px; }
+.multiples { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+.multiples .card .note { font-size: 12px; }
+details.howto { font-family: var(--font-ui); font-size: 13px; color: var(--ink-2); margin-top: 6px; }
+details.howto > summary, details.table > summary { cursor: pointer; color: var(--accent-ink); padding-block: 6px; font-family: var(--font-ui); font-size: 13px; }
+details.howto p { line-height: 1.55; max-width: 75ch; padding-bottom: 4px; }
+
+/* ---------- charts ---------- */
+.chart { position: relative; width: 100%; font-family: var(--font-ui); }
+.chart svg { display: block; width: 100%; overflow: visible; }
+.chart text { font-family: var(--font-ui); font-size: 11px; fill: var(--muted); font-variant-numeric: tabular-nums; }
+.chart .lbl { fill: var(--ink-2); font-size: 11.5px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-family: var(--font-ui); font-size: 12.5px; color: var(--ink-2); margin-bottom: 8px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.legend i.line { height: 3px; border-radius: 2px; }
+.tip { position: absolute; pointer-events: none; z-index: 5; min-width: 170px; max-width: 290px; background: var(--surface); color: var(--ink); border: 1px solid var(--ring); border-radius: 10px; box-shadow: 0 10px 28px rgba(0, 0, 0, 0.16); padding: 9px 11px; font-size: 12px; line-height: 1.45; }
+.tip b { font-weight: 650; }
+.tip .row { display: flex; justify-content: space-between; gap: 12px; }
+.tip .row span:first-child { display: inline-flex; align-items: center; gap: 6px; color: var(--ink-2); }
+.tip .row span:last-child { font-variant-numeric: tabular-nums; }
+.tip i { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-family: var(--font-ui); font-variant-numeric: tabular-nums; font-size: 12.5px; }
+th, td { text-align: right; padding: 7px 9px; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+th { color: var(--muted); font-weight: 600; }
+.pos { color: var(--gain); } .neg { color: var(--loss); }
+.range { font-size: 11.5px; color: var(--muted); }
+
+/* ---------- glossary terms ---------- */
+.term { border-bottom: 1px dotted currentColor; cursor: help; position: relative; }
+.term::after { content: attr(data-def); position: absolute; left: 0; top: calc(100% + 6px); z-index: 40; width: min(320px, 80vw); background: var(--ink); color: var(--bg); font-family: var(--font-ui); font-size: 12.5px; font-weight: 400; line-height: 1.45; padding: 9px 11px; border-radius: 9px; box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2); opacity: 0; pointer-events: none; transform: translateY(-3px); transition: opacity 0.15s, transform 0.15s; white-space: normal; letter-spacing: 0; text-transform: none; }
+.term:hover::after, .term:focus::after { opacity: 1; transform: none; }
+.hero .term::after { background: var(--hero-ink); color: var(--hero-bg); }
+dl.glossary { display: grid; grid-template-columns: minmax(150px, 220px) 1fr; gap: 10px 22px; font-family: var(--font-ui); font-size: 14px; margin: 0; }
+dl.glossary dt { font-weight: 650; color: var(--ink); }
+dl.glossary dd { margin: 0; color: var(--ink-2); line-height: 1.5; }
+@media (max-width: 620px) { dl.glossary { grid-template-columns: 1fr; gap: 2px; } dl.glossary dd { margin-bottom: 10px; } }
+
+.method ol, .method ul { margin: 0; padding-left: 1.2em; display: grid; gap: 8px; }
+.refs { font-family: var(--font-ui); font-size: 13px; line-height: 1.55; color: var(--ink-2); padding-left: 1.1em; }
+.refs li { margin-bottom: 5px; }
+footer.site { border-top: 1px solid var(--grid); padding-block: 28px 48px; font-family: var(--font-ui); font-size: 13px; color: var(--ink-2); }
+footer.site .inner { max-width: 1180px; margin: 0 auto; display: grid; gap: 8px; }
+.err { color: var(--loss); font-family: var(--font-ui); }
+@media (max-width: 640px) {
+  body { font-size: 17px; }
+  .controls { position: static; }
+  .finding .v { font-size: 1.6rem; }
+  .yearbig { font-size: 1.6rem; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#pie">Skip to the charts</a>
+<header class="hero gutter">
+  <div class="hero-inner">
+    <div class="eyebrow" id="eyebrow">France · 1900 to today · open data and open method</div>
+    <h1>Show me your <em>pie</em></h1>
+    <p class="lede">Picture all of France's household wealth as one pie, and all <span class="term" tabindex="0" data-def="Everyone aged 20 or over. A couple's wealth and income are split half and half between the two partners, as in the World Inequality Database.">adults</span> lined up from poorest to richest. <strong>Who gets which slice, how has that changed, and how sure can we be?</strong></p>
+
+    <section class="pie-stage" aria-label="Population versus share of the pie">
+      <div class="stage-head">
+        <span class="stage-title" id="stage-title">Share of the adults vs share of the pie</span>
+        <div class="chips" role="group" aria-label="What the pie is made of">
+          <button type="button" class="chip" data-hc="hweal" aria-pressed="true">Wealth</button>
+          <button type="button" class="chip" data-hc="ptinc" aria-pressed="false">Income before tax</button>
+          <button type="button" class="chip" data-hc="diinc" aria-pressed="false">Income after tax &amp; public services</button>
+        </div>
+      </div>
+      <div class="hero-chart" id="hero-chart"></div>
+      <div class="timeline">
+        <button type="button" class="play" id="play" aria-label="Play the years">▶ Play</button>
+        <span class="yearbig" id="hero-year">2024</span>
+        <input type="range" id="hero-range" min="1900" max="2024" step="1" value="2024" aria-label="Year">
+        <span class="estimate" id="hero-estimate" hidden>estimate</span>
+      </div>
+      <div class="hero-legend" id="hero-legend"></div>
+      <p class="hero-caption" id="hero-caption" aria-live="polite"></p>
+      <p class="note" id="hero-note"></p>
+    </section>
+
+    <div class="findings" id="findings"></div>
+    <p class="note" id="findings-note"></p>
+    <div class="callout"><b>What this page does not say.</b> It does not follow the same people over time: the slices are ranks, and people move between them. It does not say anyone took money from anyone. It does not separate rising house and share prices from saving. And the very top rests on estimates that differ by several times between methods. Other sources agree with these figures on the poorest half's share of wealth, not on the middle 40% or the top.</div>
+  </div>
+</header>
+
+<div class="controls gutter" role="region" aria-label="Settings for chapters 01 to 04">
+  <div class="controls-inner">
+    <div class="ctl"><span class="ctl-label" id="measure-label">Pie</span>
+      <div class="seg" id="concept" role="group" aria-labelledby="measure-label">
+        <button type="button" data-c="hweal" aria-pressed="true">Wealth</button>
+        <button type="button" data-c="ptinc" aria-pressed="false">Income before tax</button>
+        <button type="button" data-c="diinc" aria-pressed="false">After tax &amp; services</button>
+      </div>
+    </div>
+    <div class="ctl"><span class="ctl-label">From</span><select id="from" aria-label="Start year"></select><span class="ctl-label">to</span><select id="to" aria-label="End year"></select></div>
+    <details class="adv" id="adv">
+      <summary>Expert settings</summary>
+      <div class="adv-panel">
+        <label for="scenario">The very top of wealth
+          <select id="scenario">
+            <option value="wid">WID as published</option>
+            <option value="dwa_lower">Lower: ECB / Banque de France (illustrative)</option>
+            <option value="ggp_central">Rich list, central assumptions</option>
+            <option value="ggp_low">Rich list, 1 member per family</option>
+            <option value="no_cut">Rich list, no non-resident cut</option>
+          </select>
+          <span class="hint">Swap WID's estimate of the very top for an alternative. Each one only changes the years it covers (chapter 05 explains them).</span>
+        </label>
+        <label for="prices">Prices
+          <select id="prices">
+            <option value="wid">National income prices (WID)</option>
+            <option value="cpi">Consumer prices (INSEE)</option>
+          </select>
+          <span class="hint">How euros of different years are made comparable.</span>
+        </label>
+        <label for="smooth">Years
+          <select id="smooth">
+            <option value="1">Each year</option>
+            <option value="3">3-year average</option>
+          </select>
+          <span class="hint">Averages out one-off stock-market years.</span>
+        </label>
+      </div>
+    </details>
+    <span class="status" id="status" aria-live="polite"></span>
+  </div>
+</div>
+
+<div class="layout gutter">
+  <nav class="rail" aria-label="Chapters">
+    <ol id="rail">
+      <li><a href="#pie">Who holds the pie</a></li>
+      <li><a href="#change">How each slice changed</a></li>
+      <li><a href="#levels">Real wealth per person</a></li>
+      <li><a href="#gic">Growth, rank by rank</a></li>
+      <li><a href="#top">How sure is the top?</a></li>
+      <li><a href="#topincome">Top incomes</a></li>
+      <li><a href="#crosscheck">Do other sources agree?</a></li>
+      <li><a href="#housing">Housing and fixed costs</a></li>
+      <li><a href="#method">Method and limits</a></li>
+      <li><a href="#glossary">Glossary</a></li>
+      <li><a href="#sources">Sources and review</a></li>
+    </ol>
+  </nav>
+  <main>
+    <section class="chapter" id="pie">
+      <header><span class="kicker">01 · Who holds the pie</span><h2>Seven slices of the population</h2>
+        <p class="summary-line" id="pie-summary"></p></header>
+      <div class="card"><div class="legend" id="pie-legend"></div><div class="chart" id="pie-chart"></div>
+        <details class="howto"><summary>How to read this chart</summary><p>Each coloured band is one slice of the adult population, from the poorest half at the bottom to the richest 0.001% at the top. Its height is that slice's share of the whole pie. The slices never overlap and always add up to 100%. Grey shading marks years that the World Inequality Database itself flags as less reliable (darker means less reliable). For wealth, the dashed line in 1988 is when WID starts adjusting its top group to Forbes billionaire figures. The two solid lines are the period you picked.</p></details>
+      </div>
+      <p class="note">The richest slices hold very few people, so their bands are thin. Each one gets its own scale below.</p>
+      <div class="multiples" id="multiples"></div>
+    </section>
+
+    <section class="chapter" id="change">
+      <header><span class="kicker">02 · How each slice changed</span><h2>A bigger pie, cut differently</h2>
+        <p class="summary-line" id="change-summary"></p></header>
+      <div class="card"><div class="legend" id="change-legend"></div><div class="chart" id="change-chart"></div>
+        <details class="howto"><summary>How to read this chart</summary><p>Every slice changes for two reasons. First, the whole pie grows: grey bars show what that alone would have added, at the slice's average share of the period. Second, the slice's share moves: blue bars when it got a bigger share, red when smaller. Grey plus colour is the slice's real change, written at the end of each row. These are slices of a ranking, not fixed groups of people: someone can move from one slice to another over time, so this is not money taken from one group and given to another.</p></details>
+        <details class="table"><summary>Show the numbers</summary><div class="tablewrap" id="change-table"></div></details>
+      </div>
+      <details class="expert"><summary>For experts: does the start year change the answer?</summary>
+      <div class="prose"><h3>Does the start year change the answer?</h3>
+        <p class="note">The share effect up to your end year, for every possible start year. A flat line means the conclusion does not depend on where you start. Early spikes usually come from single odd data points in old records.</p></div>
+      <div class="card"><div class="legend" id="sens-legend"></div><div class="chart" id="sens-chart"></div></div>
+      </details>
+    </section>
+
+    <section class="chapter" id="levels">
+      <header><span class="kicker" id="levels-kicker">03 · Real wealth per person</span><h2 id="levels-title">Everyone's slice, in euros</h2>
+        <p class="note" id="levels-note"></p></header>
+      <div class="card"><div class="legend" id="levels-legend"></div><div class="chart" id="levels-chart"></div>
+        <details class="howto"><summary>How to read this chart</summary><p>The average per adult inside each slice, adjusted for inflation. The vertical scale multiplies by ten at each step, so a line that climbs at the same slope as another grows at the same pace, however far apart they are. A slice can lose share of the pie while its members still get richer, because the pie itself grows.</p></details>
+      </div>
+    </section>
+
+    <section class="chapter" id="gic">
+      <header><span class="kicker">04 · Growth, rank by rank</span><h2>Who grew fastest?</h2>
+        <p class="summary-line" id="gic-summary"></p></header>
+      <details class="expert"><summary>For experts: growth of each of 127 ranks</summary>
+      <div class="card"><div class="chart" id="gic-chart"></div>
+        <details class="howto"><summary>How to read this chart</summary><p>Average yearly growth, after inflation, for each of 127 ranks of the population, from the poorest 1% on the left to the richest 0.001% on the right. The right end zooms in: the last 28 points are all inside the top 1%. The flat line is the growth of the average. It compares ranks, not the same people. This chart always uses WID as published.</p></details>
+      </div>
+      </details>
+    </section>
+
+    <section class="chapter" id="top">
+      <header><span class="kicker">05 · How sure is the top?</span><h2>530 people, several estimates</h2>
+        <p class="summary-line" id="top-summary"></p></header>
+      <div class="callout"><b>Why the top is hard.</b> Surveys rarely reach billionaires, and much of their income stays inside their companies. WID estimates the top 0.001% from tax and national-accounts data and, since 1988, raises it to at least the Forbes billionaire figures. Rich lists such as Challenges and Forbes value fortunes from company prices, but count families or citizens rather than adults living in France.</div>
+      <div class="card"><h3>WID's top groups against the rich lists</h3><div class="legend" id="top-legend"></div><div class="chart" id="top-chart"></div>
+        <details class="table"><summary>Show the numbers</summary><div class="tablewrap" id="top-table"></div></details>
+      </div>
+      <div class="two">
+        <div class="card"><h3>Top 0.001% share of wealth under each assumption</h3><div class="legend" id="band-legend"></div><div class="chart" id="band-chart"></div></div>
+        <div class="card"><h3>Same year, two estimates by the same team</h3><div class="tablewrap" id="vintage-table"></div><p class="note" id="vintage-note"></p></div>
+      </div>
+      <p class="note prose" id="topbin-note"></p>
+    </section>
+
+    <section class="chapter" id="topincome">
+      <header><span class="kicker">06 · Top incomes</span><h2>Company profits that stay inside firms</h2>
+        <p class="note">For the largest fortunes, much income can stay inside the companies they control as retained profits (the <span class="term" data-term="ipp">Institut des politiques publiques, IPP</span>, shows this for the 75 richest tax households in 2016). IPP linked French firms to their owners and measured top incomes several ways. Amounts are in billions of 2016 euros for each group. Groups differ slightly: WID counts adults, IPP counts tax households.</p></header>
+      <p class="summary-line prose" id="ipp-summary"></p>
+      <details class="expert"><summary>For experts: the 2016 comparison in billions of euros</summary>
+      <div class="card"><div class="tablewrap" id="ipp-table"></div></div>
+      </details>
+    </section>
+
+    <section class="chapter" id="crosscheck">
+      <header><span class="kicker">07 · Do other sources agree?</span><h2>The same question, other producers</h2>
+        <p class="note"><span class="term" data-term="wid">WID</span> against the <span class="term" data-term="ecb">ECB / Banque de France</span> household wealth accounts and <span class="term" data-term="insee">INSEE</span>'s income survey, wealth survey and national accounts. They do not count the same way (adults, households or persons per consumption unit), so agreement on direction matters more than exact levels. INSEE series are broken where its method changed rather than joined.</p></header>
+      <div class="two" id="cc-grid"></div>
+      <details class="expert"><summary>For experts: four more comparisons and the details</summary>
+      <div class="two" id="cc-grid-expert"></div>
+      <p class="note prose" id="cc-notes"></p>
+      </details>
+    </section>
+
+    <section class="chapter" id="housing">
+      <header><span class="kicker">08 · Housing and fixed costs</span><h2>What a flat costs, in years of income</h2>
+        <p class="note">A 70 m² existing flat, against cash income after taxes and benefits (INSEE income survey) for one person living alone; a couple counts as 1.5 people, so its figures are a third lower. Prices: the 2025 average of recorded sales (<span class="term" data-term="dvf">DVF</span> open data) carried back in time with INSEE's price indices. Repayments: a 25-year loan for the full price at the average French mortgage rate of the year (ECB), with no deposit or insurance.</p></header>
+      <div class="two">
+        <div class="card"><h3>Years of income · Paris</h3><div class="legend" id="paris-legend"></div><div class="chart" id="paris-chart"></div></div>
+        <div class="card"><h3>Years of income · outside the Paris region</h3><div class="legend" id="rest-legend"></div><div class="chart" id="rest-chart"></div></div>
+        <div class="card"><h3>Yearly repayment, share of income · Paris</h3><div class="legend" id="parispay-legend"></div><div class="chart" id="parispay-chart"></div></div>
+        <div class="card"><h3>Yearly repayment, share of income · outside the Paris region</h3><div class="legend" id="restpay-legend"></div><div class="chart" id="restpay-chart"></div></div>
+      </div>
+      <details class="expert"><summary>For experts: fixed costs and what wealth is made of</summary>
+      <div class="two">
+        <div class="card"><h3>Income committed before any choice</h3><p class="note">Share of households' disposable income going to rent or its equivalent for owners, energy, water, telecoms, insurance and school canteens (national accounts, all households).</p><div class="chart" id="precommit-chart"></div></div>
+        <div class="card"><h3>Housing as a share of gross assets</h3><p class="note">Groups ranked by wealth; WID's asset detail stops in 2014 and comes from an earlier estimate.</p><div class="legend" id="comp-legend"></div><div class="chart" id="comp-chart"></div></div>
+      </div>
+      </details>
+      <p class="note prose" id="prices-note"></p>
+    </section>
+
+    <section class="chapter method" id="method">
+      <header><span class="kicker">09 · Method and limits</span><h2>How it is computed, and what it cannot say</h2></header>
+      <div class="prose">
+        <ol>
+          <li><strong>Backbone.</strong> The <span class="term" data-term="wid">World Inequality Database (WID.world)</span> splits all of France's national income and household wealth among adults, combining tax records, surveys and national accounts (Garbinti, Goupille-Lebret &amp; Piketty 2018, 2021).</li>
+          <li><strong>Three pies.</strong> <em>Wealth</em>: housing, business and financial assets minus debts. <em>Income before tax</em>: after pensions, before taxes; it includes non-cash items such as owners' imputed rent and company profits attributed to shareholders. <em>Income after tax &amp; public services</em>: all taxes removed, cash benefits added, and public spending attributed to people; health counts about the same per person, education and other spending in proportion to income (Bozio et al. 2024; the French series come from Fisher-Post &amp; Gethin 2023; since 2019 they repeat the 2019 tax-and-transfer ratios).</li>
+          <li><strong>Slices.</strong> Seven groups that partition the adult population, each summed from WID's 127 ranks and checked against WID's own published shares.</li>
+          <li><strong>Real euros.</strong> WID's national-income price index, or INSEE's consumer prices (from 1950).</li>
+          <li><strong>Change of a slice.</strong> Growth effect (the average share times the growth of the pie) plus share effect (the change in share times the average size of the pie). The split is exact.</li>
+          <li><strong>The very top.</strong> WID raises its top group to Forbes totals from 1988. Expert settings swap it for alternatives in both directions: the ECB / Banque de France level (lower) or the Challenges rich list under assumptions inspired by Garbinti, Goupille-Lebret &amp; Piketty's data appendix (higher).</li>
+          <li><strong>Housing.</strong> Years of cash income and yearly repayment for a 70 m² flat, by income group of INSEE's survey.</li>
+        </ol>
+        <h3 style="margin-top:22px">Limits</h3>
+        <ul class="note" style="font-size:14px">
+          <li>Per adult and split equally within couples: not comparable in level with INSEE's <em>niveau de vie</em>.</li>
+          <li>Old and recent years use different methods: estate records before 1970, tax data 1970–2014, an extrapolation after 2014. Single years can be odd (for example 1975 and 1984 for the top 0.001%).</li>
+          <li>The population aged 20+ doubled since 1900 and grew much older, which moves wealth shares by itself.</li>
+          <li>One national price index for everyone; prices are about 7% higher in the Paris urban area.</li>
+          <li>The Challenges and Forbes figures are quoted from published articles and can differ by a few percent between sources.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="chapter" id="glossary">
+      <header><span class="kicker">10 · Glossary</span><h2>Words used on this page</h2></header>
+      <dl class="glossary">
+        <dt>Adult, equal split</dt><dd>Everyone aged 20 or over; a couple's income and wealth are divided half and half. Children are not counted.</dd>
+        <dt>Slice (layer)</dt><dd>A group of adults defined by rank, for example the richest 1% to 0.1%. The seven slices do not overlap.</dd>
+        <dt>Top 0.001%</dt><dd>The richest one adult in 100,000: about 530 people in France today.</dd>
+        <dt>Share of the pie</dt><dd>The part of all wealth (or income) that a slice holds.</dd>
+        <dt>Growth effect, share effect</dt><dd>The two parts of a slice's change: the pie growing, and the slice's share moving.</dd>
+        <dt>Net wealth</dt><dd>Housing, business and financial assets minus debts.</dd>
+        <dt>Income after tax and public services</dt><dd>Income after all taxes, plus cash benefits, plus the value of public services such as health care and schools.</dd>
+        <dt>Distributional national accounts</dt><dd>Estimates that split the whole of national income and wealth across the population, so the slices add up to the national totals.</dd>
+        <dt>Rich list</dt><dd>A magazine ranking of the largest fortunes (Challenges' 500 families, Forbes billionaires).</dd>
+        <dt>Calibration to Forbes</dt><dd>WID raises its top group so that it holds at least what Forbes counts for French billionaires.</dd>
+        <dt>Extrapolated year</dt><dd>A year WID estimates by extending earlier data, to be revised when new tax data arrive.</dd>
+        <dt>Consumption unit</dt><dd>INSEE's way to compare households of different sizes: 1 for the first adult, 0.5 per other person aged 14+, 0.3 per child.</dd>
+      </dl>
+    </section>
+
+    <section class="chapter" id="sources">
+      <header><span class="kicker">11 · Sources and review</span><h2>Check everything</h2>
+        <p class="note">This analysis was built with the help of Claude, an AI model by Anthropic, under the maintainer's direction. All code, data and documentation are public, with the reviews of this work: four adversarial reviews and a second round, each run by a separate AI reviewer agent (Claude) with a critical brief. They are not peer review by outside experts, and since author and reviewers share a model they may share blind spots; human reviewers are invited through the repository. Every number on this page can be rebuilt from the original sources with three commands.</p></header>
+      <div class="prose">
+        <ul class="refs">
+          <li><a href="https://github.com/Zboule/show-me-your-pie" target="_blank" rel="noopener">Repository</a>: code, data pipeline, tests, documentation.</li>
+          <li><a href="https://github.com/Zboule/show-me-your-pie/blob/main/paper/paper.md" target="_blank" rel="noopener">Working paper</a>: the full method and results.</li>
+          <li><a href="https://github.com/Zboule/show-me-your-pie/tree/main/docs/reviews" target="_blank" rel="noopener">Reviews and response</a>: methodology, numbers, code, sources.</li>
+          <li>Garbinti, Goupille-Lebret, Piketty (2018, 2021). Income and wealth inequality in France. <em>Journal of Public Economics</em> 162; <em>JEEA</em> 19(1).</li>
+          <li>Bajard et al. (2025). Global wealth inequality on WID.world. World Inequality Lab Technical Note 2025/01.</li>
+          <li>Bozio, Garbinti, Goupille-Lebret, Guillot, Piketty (2024). Predistribution versus Redistribution. <em>AEJ: Applied Economics</em> 16(2).</li>
+          <li>Bach, Bozio, Guillouzouic, Malgouyres (2025). Do Billionaires Pay Taxes?</li>
+          <li>Auten, Splinter (2024). <em>Journal of Political Economy</em> 132(7), the main critique of these methods, and Saez &amp; Zucman's reply (NBER WP 27921).</li>
+          <li>Data: WID.world; INSEE; ECB / Banque de France; DVF (Etalab); IPP; Challenges and Forbes as quoted in published articles.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+</div>
+
+<footer class="site gutter"><div class="inner">
+  <span>Show Me Your Pie · version <span id="version">0.4</span> · data built <span id="built"></span></span>
+  <span>Code under the MIT licence, text under CC BY 4.0. Data belong to their producers; see the repository for each licence.</span>
+</div></footer>
+
+<script src="core.js"></script>
+<script>
+(() => {
+  const LAYER_LABEL = {
+    "p0p50": "Bottom 50%", "p50p90": "Middle 40%", "p90p99": "Top 10% to 1%",
+    "p99p99.9": "Top 1% to 0.1%", "p99.9p99.99": "Top 0.1% to 0.01%",
+    "p99.99p99.999": "Top 0.01% to 0.001%", "p99.999p100": "Top 0.001%"
+  };
+  const CONCEPT_NAME = { hweal: "net wealth", ptinc: "income before tax", diinc: "income after tax and public services" };
+  const NS = "http://www.w3.org/2000/svg";
+  const state = { concept: "hweal", from: 1990, to: 2024, scenario: "wid", smooth: 1, prices: "wid" };
+  let D = null;
+
+  // ---------- formatting ----------
+  const nf = (d) => new Intl.NumberFormat("en-US", { maximumFractionDigits: d, minimumFractionDigits: d });
+  function eur(v, opts = {}) {
+    if (v == null || !isFinite(v)) return "n/a";
+    const s = v < 0 ? "−" : (opts.sign && v > 0 ? "+" : "");
+    const a = Math.abs(v);
+    if (a >= 1e12) return `${s}€${nf(a >= 1e13 ? 0 : 1).format(a / 1e12)} tn`;
+    if (a >= 1e9) return `${s}€${nf(a >= 1e11 ? 0 : 1).format(a / 1e9)} bn`;
+    if (a >= 1e6) return `${s}€${nf(a >= 1e8 ? 0 : 1).format(a / 1e6)} M`;
+    if (a >= 1e4) return `${s}€${nf(0).format(Math.round(a / 100) * 100)}`;
+    return `${s}€${nf(0).format(a)}`;
+  }
+  function pct(share, sign) {
+    if (share == null || !isFinite(share)) return "n/a";
+    if (share === 0) return "0%";
+    const v = share * 100, a = Math.abs(v);
+    const d = a < 0.1 ? 3 : a < 1 ? 2 : 1;
+    return (sign && v > 0 ? "+" : v < 0 ? "−" : "") + nf(d).format(a) + "%";
+  }
+  function pp(delta) {
+    const v = delta * 100, a = Math.abs(v);
+    return (v > 0 ? "+" : v < 0 ? "−" : "") + nf(a < 1 ? 2 : 1).format(a) + " pts";
+  }
+  const people = (n) => n >= 1e6 ? `${nf(1).format(n / 1e6)} million` : n >= 1e4 ? nf(0).format(Math.round(n / 1000) * 1000) : nf(0).format(Math.round(n / 10) * 10);
+  // Slices and income groups use one ordered ramp, cool (poorest) to warm (richest).
+  const color = (i) => `var(--l${i + 1})`;
+  const nw = (t) => `<span class="nw">${t}</span>`;
+
+  // ---------- data access ----------
+  const adults = (y) => D.adults[String(y)];
+  const layerKeys = () => D.meta.layers;
+  const width = (L) => (L.bounds[1] - L.bounds[0]) / 100;
+  const base = () => D.concepts[state.concept];
+
+  // Real values come with WID's national-income deflator. With consumer prices,
+  // value_cpi = value_wid × deflator_wid(y) / cpi(y), both 1 in the price base
+  // year. INSEE's long CPI is too coarse before 1950, so earlier years keep the
+  // 1950 ratio (no artificial step).
+  function priceFactor(y) {
+    if (state.prices !== "cpi" || !D.purchasing) return 1;
+    return PieCore.cpiFactor(y, D.deflator, D.purchasing.cpi_all.years, D.purchasing.cpi_all.values);
+  }
+
+  // Year-based centred average over the years that exist within ±1 year;
+  // the first and last years use the two available years.
+  const smooth = PieCore.smooth;
+
+  // The concept as displayed: WID, optionally with a top-of-wealth scenario,
+  // in the chosen prices, optionally smoothed. Totals come from the layers so
+  // shares, averages and totals stay consistent.
+  let cacheKey = "", cache = null;
+  function C() {
+    const key = `${state.concept}|${state.scenario}|${state.smooth}|${state.prices}`;
+    if (key === cacheKey) return cache;
+    const b = base();
+    const sc = state.concept === "hweal" && state.scenario !== "wid" ? b.scenarios : null;
+    const scYears = sc ? sc.years[state.scenario] : [];
+    const bins = b.years.map((y, i) => Object.values(b.layers).reduce((s, L) => s + (L.avg[i] == null ? NaN : L.avg[i] * width(L)), 0));
+    const c = { ...b, layers: {}, scenarioYears: scYears };
+    for (const [k, L] of Object.entries(b.layers)) {
+      let share = L.share.slice();
+      if (sc) scYears.forEach((y, j) => { share[b.years.indexOf(y)] = sc.layers[state.scenario][k][j]; });
+      let avg = share.map((v, i) => v == null || !isFinite(bins[i]) ? null : v * bins[i] / width(L) * priceFactor(b.years[i]));
+      if (state.smooth > 1) { share = smooth(b.years, share); avg = smooth(b.years, avg); }
+      c.layers[k] = { ...L, share, avg };
+    }
+    c.mean = b.years.map((y, i) => Object.values(c.layers).reduce((s, L) => s + (L.avg[i] == null ? NaN : L.avg[i] * width(L)), 0));
+    cacheKey = key; cache = c;
+    return c;
+  }
+  const yi = (c, y) => c.years.indexOf(y);
+  const total = (c, y) => c.mean[yi(c, y)] * adults(y);
+
+  // ---------- svg helpers ----------
+  function el(tag, attrs = {}, parent) {
+    const e = document.createElementNS(NS, tag);
+    for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  const lin = (d0, d1, r0, r1) => (v) => r0 + (v - d0) / (d1 - d0 || 1) * (r1 - r0);
+  function niceTicks(min, max, n = 5) {
+    const span = max - min || 1, step0 = span / n;
+    const mag = Math.pow(10, Math.floor(Math.log10(step0)));
+    const step = [1, 2, 2.5, 5, 10].map(m => m * mag).find(s => span / s <= n) || 10 * mag;
+    const out = [];
+    for (let v = Math.ceil(min / step) * step; v <= max + 1e-9; v += step) out.push(+v.toFixed(10));
+    return out;
+  }
+  function yearTicks(a, b, w) {
+    const span = b - a, target = Math.max(3, Math.floor(w / 80));
+    const step = [1, 2, 5, 10, 20, 25, 50].find(s => span / s <= target) || 50;
+    const out = []; for (let y = Math.ceil(a / step) * step; y <= b; y += step) out.push(y);
+    return out;
+  }
+  function tipFor(container) {
+    let t = container.querySelector(".tip");
+    if (!t) { t = document.createElement("div"); t.className = "tip"; t.hidden = true; container.appendChild(t); }
+    return t;
+  }
+  function placeTip(container, tip, px, py) {
+    const w = container.clientWidth, tw = tip.offsetWidth;
+    let left = px + 14; if (left + tw > w) left = px - tw - 14; if (left < 0) left = 0;
+    tip.style.left = left + "px"; tip.style.top = Math.max(0, py - 10) + "px";
+  }
+  function legend(target, items, kind) {
+    target.innerHTML = items.map(it => `<span><i class="${kind === "line" ? "line" : ""}" style="background:${it.color}"></i>${it.label}</span>`).join("");
+  }
+
+  // Quality bands: years whose WID data-quality flag is below the concept's
+  // best flag, darker for lower flags.
+  function qualityRuns(c) {
+    if (!c.quality) return [];
+    const qs = c.quality.filter(q => q != null), best = Math.max(...qs), runs = [];
+    c.years.forEach((y, i) => {
+      const q = c.quality[i];
+      if (q == null || q >= best) return;
+      const op = 0.35 + 0.65 * (best - q) / best;
+      const last = runs[runs.length - 1];
+      if (last && last.op === op && y - last.to <= 5) last.to = y; else runs.push({ from: y, to: y, op });
+    });
+    return runs;
+  }
+  function drawBands(svg, runs, tx, x0, x1, top, bottom) {
+    for (const r of runs) {
+      if (r.to < x0 || r.from > x1) continue;
+      const a = tx(Math.max(r.from, x0)) - 2, b = tx(Math.min(r.to, x1)) + 2;
+      el("rect", { x: a, y: top, width: Math.max(2, b - a), height: bottom - top, style: `fill:var(--band);opacity:${r.op}` }, svg);
+    }
+  }
+
+  // ---------- generic line chart ----------
+  function lineChart(container, series, opts) {
+    container.innerHTML = "";
+    const W = Math.max(260, container.clientWidth), H = opts.height || 320;
+    const narrow = W < 560;
+    const m = { l: opts.ml || 58, r: opts.endLabels && !narrow ? 150 : 14, t: 10, b: 26 };
+    const xs = series.flatMap(s => s.xs).filter(x => x != null);
+    if (!xs.length) { container.innerHTML = '<p class="note">No data for this selection.</p>'; return; }
+    const x0 = opts.xDomain ? opts.xDomain[0] : Math.min(...xs), x1 = opts.xDomain ? opts.xDomain[1] : Math.max(...xs);
+    const vals = series.flatMap(s => s.ys.filter((v, i) => v != null && isFinite(v) && s.xs[i] != null && s.xs[i] >= x0 && s.xs[i] <= x1 && (!opts.log || v > 0)));
+    if (!vals.length) { container.innerHTML = '<p class="note">No data for this selection.</p>'; return; }
+    let y0 = opts.yMin != null ? opts.yMin : Math.min(...vals), y1 = Math.max(...vals);
+    if (opts.zero) { y0 = Math.min(0, y0); y1 = Math.max(0, y1); }
+    let ty, yTicks;
+    if (opts.log) {
+      const l0 = Math.floor(Math.log10(y0)), l1 = Math.ceil(Math.log10(y1));
+      const f = lin(l0, l1, H - m.b, m.t); ty = (v) => f(Math.log10(v));
+      yTicks = []; for (let p = l0; p <= l1; p++) yTicks.push(Math.pow(10, p));
+    } else {
+      const pad = (y1 - y0) * 0.06 || 1; if (!opts.zero && opts.yMin == null) y0 -= pad; y1 += pad;
+      yTicks = niceTicks(y0, y1, opts.yTickCount || 5); y0 = Math.min(y0, yTicks[0]); y1 = Math.max(y1, yTicks[yTicks.length - 1]);
+      ty = lin(y0, y1, H - m.b, m.t);
+    }
+    const tx = lin(x0, x1, m.l, W - m.r);
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, height: H, role: "img", "aria-label": opts.aria || "" }, container);
+    if (opts.bands) drawBands(svg, opts.bands, tx, x0, x1, m.t, H - m.b);
+    for (const v of yTicks) {
+      const y = ty(v);
+      el("line", { x1: m.l, x2: W - m.r, y1: y, y2: y, style: "stroke:var(--grid);stroke-width:1" }, svg);
+      const t = el("text", { x: m.l - 8, y: y + 4, "text-anchor": "end" }, svg); t.textContent = opts.yFmt(v);
+    }
+    if (opts.zero && !opts.log) el("line", { x1: m.l, x2: W - m.r, y1: ty(0), y2: ty(0), style: "stroke:var(--axis);stroke-width:1.5" }, svg);
+    const xt = opts.xTicks || yearTicks(x0, x1, W - m.l - m.r);
+    for (const v of xt) { const t = el("text", { x: tx(v), y: H - 6, "text-anchor": "middle" }, svg); t.textContent = opts.xFmt ? opts.xFmt(v) : v; }
+    el("line", { x1: m.l, x2: W - m.r, y1: H - m.b, y2: H - m.b, style: "stroke:var(--axis);stroke-width:1" }, svg);
+    for (const mk of opts.markers || []) {
+      if (mk < x0 || mk > x1) continue;
+      el("line", { x1: tx(mk), x2: tx(mk), y1: m.t, y2: H - m.b, style: "stroke:var(--ink-2);stroke-width:1;opacity:0.5" }, svg);
+    }
+    for (const rl of opts.refLines || []) {
+      if (rl.y < y0 || rl.y > y1) continue;
+      el("line", { x1: m.l, x2: W - m.r, y1: ty(rl.y), y2: ty(rl.y), style: "stroke:var(--ink-2);stroke-width:1;stroke-dasharray:3 3;opacity:0.8" }, svg);
+      const t = el("text", { x: W - m.r - 4, y: ty(rl.y) - 5, "text-anchor": "end", class: "lbl" }, svg); t.textContent = rl.label;
+    }
+    for (const mk of opts.dashed || []) {
+      if (mk < x0 || mk > x1) continue;
+      el("line", { x1: tx(mk), x2: tx(mk), y1: m.t, y2: H - m.b, style: "stroke:var(--ink-2);stroke-width:1;stroke-dasharray:4 3;opacity:0.7" }, svg);
+    }
+    const ends = [];
+    series.forEach((s) => {
+      let d = "", pen = false;
+      s.xs.forEach((x, i) => {
+        const v = s.ys[i];
+        if (v == null || !isFinite(v) || x == null || x < x0 || x > x1 || (opts.log && v <= 0)) { pen = false; return; }
+        d += (pen ? "L" : "M") + tx(x).toFixed(1) + "," + ty(v).toFixed(1); pen = true;
+      });
+      el("path", { d, style: `fill:none;stroke:${s.color};stroke-width:${s.width || 2};stroke-linejoin:round;stroke-linecap:round${s.dash ? `;stroke-dasharray:${s.dash}` : ""}` }, svg);
+      if (s.dots) s.xs.forEach((x, i) => {
+        const v = s.ys[i];
+        if (v == null || x == null || x < x0 || x > x1) return;
+        el("circle", { cx: tx(x), cy: ty(v), r: 4, style: `fill:${s.color};stroke:var(--surface);stroke-width:2` }, svg);
+      });
+      for (let i = s.xs.length - 1; i >= 0; i--) {
+        if (s.ys[i] != null && s.xs[i] != null && s.xs[i] <= x1 && s.xs[i] >= x0 && (!opts.log || s.ys[i] > 0)) { ends.push({ s, x: s.xs[i], y: ty(s.ys[i]), v: s.ys[i] }); break; }
+      }
+    });
+    if (opts.endLabels && !narrow) {
+      ends.sort((a, b) => a.y - b.y);
+      for (let i = 1; i < ends.length; i++) if (ends[i].y - ends[i - 1].y < 14) ends[i].y = ends[i - 1].y + 14;
+      for (const e of ends) {
+        el("circle", { cx: tx(e.x), cy: ty(e.v), r: 3, style: `fill:${e.s.color};stroke:var(--surface);stroke-width:2` }, svg);
+        const t = el("text", { x: W - m.r + 8, y: e.y + 4, class: "lbl" }, svg); t.textContent = e.s.short || e.s.label;
+      }
+    }
+    const tip = tipFor(container);
+    const cross = el("line", { y1: m.t, y2: H - m.b, style: "stroke:var(--ink-2);stroke-width:1;opacity:0" }, svg);
+    const dots = series.map(s => el("circle", { r: 4, style: `fill:${s.color};stroke:var(--surface);stroke-width:2;opacity:0` }, svg));
+    const allX = [...new Set(xs)].filter(x => x >= x0 && x <= x1).sort((a, b) => a - b);
+    const hit = el("rect", { x: m.l, y: m.t, width: W - m.l - m.r, height: H - m.t - m.b, style: "fill:transparent;cursor:crosshair" }, svg);
+    function show(ev) {
+      const r = svg.getBoundingClientRect(), px = (ev.clientX - r.left) * W / r.width;
+      let best = allX[0], bd = Infinity; for (const x of allX) { const dd = Math.abs(tx(x) - px); if (dd < bd) { bd = dd; best = x; } }
+      cross.setAttribute("x1", tx(best)); cross.setAttribute("x2", tx(best)); cross.style.opacity = 0.5;
+      let rows = "";
+      series.forEach((s, i) => {
+        // A year can appear twice in a series at a methodological break.
+        const idx = s.xs.map((x, j) => x === best ? j : -1).filter(j => j >= 0 && s.ys[j] != null && isFinite(s.ys[j]) && (!opts.log || s.ys[j] > 0));
+        if (!idx.length) { dots[i].style.opacity = 0; return; }
+        const v = s.ys[idx[idx.length - 1]];
+        dots[i].setAttribute("cx", tx(best)); dots[i].setAttribute("cy", ty(v)); dots[i].style.opacity = 1;
+        idx.forEach((j, n) => {
+          const tag = idx.length > 1 ? (n === 0 ? " (older method)" : " (newer method)") : "";
+          rows += `<div class="row"><span><i style="background:${s.color}"></i>${s.label}${tag}</span><span>${(opts.tipFmt || opts.yFmt)(s.ys[j])}</span></div>`;
+        });
+      });
+      tip.innerHTML = `<b>${opts.tipTitle ? opts.tipTitle(best) : best}</b>${rows}`;
+      tip.hidden = false; placeTip(container, tip, tx(best) * r.width / W, (ev.clientY - r.top));
+    }
+    function hide() { tip.hidden = true; cross.style.opacity = 0; dots.forEach(d => d.style.opacity = 0); }
+    hit.addEventListener("pointermove", show); hit.addEventListener("pointerdown", show); hit.addEventListener("pointerleave", hide);
+    if (opts.table !== false) dataTable(container, series, opts.tipFmt || opts.yFmt, x0, x1, opts.xFmt);
+  }
+
+  // A "Show the numbers" table under a chart, so no value depends on hovering.
+  function dataTable(container, series, fmt, x0, x1, xFmt) {
+    let det = container.nextElementSibling;
+    if (!det || !det.classList.contains("autotable")) {
+      det = document.createElement("details"); det.className = "table autotable";
+      det.innerHTML = '<summary>Show the numbers</summary><div class="tablewrap"></div>';
+      container.after(det);
+    }
+    const xs = [...new Set(series.flatMap(s => s.xs).filter(x => x != null && x >= x0 && x <= x1))].sort((a, b) => a - b);
+    const val = (s, x) => { let v = null; s.xs.forEach((xx, j) => { if (xx === x && s.ys[j] != null && isFinite(s.ys[j])) v = s.ys[j]; }); return v; };
+    det.querySelector(".tablewrap").innerHTML = `<table><thead><tr><th></th>${series.map(s => `<th>${s.label}</th>`).join("")}</tr></thead><tbody>${
+      xs.map(x => `<tr><td>${xFmt ? xFmt(x) || x : x}</td>${series.map(s => { const v = val(s, x); return `<td>${v == null ? "" : fmt(v)}</td>`; }).join("")}</tr>`).join("")}</tbody></table>`;
+  }
+
+  // ---------- stacked shares ----------
+  function stackChart(container, c) {
+    container.innerHTML = "";
+    const W = Math.max(260, container.clientWidth), H = 340, m = { l: 44, r: 14, t: 10, b: 26 };
+    const years = c.years, keys = layerKeys();
+    const tx = lin(years[0], years[years.length - 1], m.l, W - m.r), ty = lin(0, 1, H - m.b, m.t);
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, height: H, role: "img", "aria-label": "Stacked shares of each population layer over time" }, container);
+    const cum = years.map(() => 0);
+    keys.forEach((k, li) => {
+      const sh = c.layers[k].share, lo = cum.slice();
+      let top = "", bot = "";
+      years.forEach((y, i) => { cum[i] += sh[i] || 0; top += (i ? "L" : "M") + tx(y).toFixed(1) + "," + ty(cum[i]).toFixed(1); });
+      for (let i = years.length - 1; i >= 0; i--) bot += "L" + tx(years[i]).toFixed(1) + "," + ty(lo[i]).toFixed(1);
+      el("path", { d: top + bot + "Z", style: `fill:${color(li)};stroke:var(--surface);stroke-width:1` }, svg);
+    });
+    // Quality shading drawn over the stack as a light veil.
+    drawBands(svg, qualityRuns(c), tx, years[0], years[years.length - 1], m.t, H - m.b);
+    for (const v of [0, 0.25, 0.5, 0.75, 1]) { const t = el("text", { x: m.l - 6, y: ty(v) + 4, "text-anchor": "end" }, svg); t.textContent = (v * 100) + "%"; }
+    for (const v of yearTicks(years[0], years[years.length - 1], W - m.l - m.r)) { const t = el("text", { x: tx(v), y: H - 6, "text-anchor": "middle" }, svg); t.textContent = v; }
+    for (const mk of [state.from, state.to]) el("line", { x1: tx(mk), x2: tx(mk), y1: m.t, y2: H - m.b, style: "stroke:var(--ink);stroke-width:1.5;opacity:0.7" }, svg);
+    if (state.concept === "hweal") { const f = D.concepts.hweal.scenarios.forbes_calibrated_from; el("line", { x1: tx(f), x2: tx(f), y1: m.t, y2: H - m.b, style: "stroke:var(--surface);stroke-width:1.5;stroke-dasharray:4 3" }, svg); }
+    const tip = tipFor(container);
+    const cross = el("line", { y1: m.t, y2: H - m.b, style: "stroke:var(--ink);stroke-width:1;opacity:0" }, svg);
+    const hit = el("rect", { x: m.l, y: m.t, width: W - m.l - m.r, height: H - m.t - m.b, style: "fill:transparent;cursor:crosshair" }, svg);
+    function show(ev) {
+      const r = svg.getBoundingClientRect(), px = (ev.clientX - r.left) * W / r.width;
+      let i = 0, bd = Infinity; years.forEach((y, j) => { const d = Math.abs(tx(y) - px); if (d < bd) { bd = d; i = j; } });
+      cross.setAttribute("x1", tx(years[i])); cross.setAttribute("x2", tx(years[i])); cross.style.opacity = 0.6;
+      const rows = keys.slice().reverse().map((k) => `<div class="row"><span><i style="background:${color(keys.indexOf(k))}"></i>${LAYER_LABEL[k]}</span><span>${pct(c.layers[k].share[i])}</span></div>`).join("");
+      const flags = [];
+      if (c.extrapolated_from && years[i] >= c.extrapolated_from) flags.push("extrapolated by WID");
+      if (c.scenarioYears.includes(years[i])) flags.push("scenario applied");
+      tip.innerHTML = `<b>${years[i]}${flags.length ? " · " + flags.join(", ") : ""}</b>${rows}`; tip.hidden = false;
+      placeTip(container, tip, tx(years[i]) * r.width / W, ev.clientY - r.top);
+    }
+    hit.addEventListener("pointermove", show); hit.addEventListener("pointerdown", show);
+    hit.addEventListener("pointerleave", () => { tip.hidden = true; cross.style.opacity = 0; });
+    const pick = years.filter(y => y % 10 === 0 || y === state.from || y === state.to || y === years[years.length - 1]);
+    dataTable(container, keys.map((k) => ({ label: LAYER_LABEL[k], xs: years.map(y => pick.includes(y) ? y : null), ys: c.layers[k].share })), (v) => pct(v), years[0], years[years.length - 1]);
+  }
+
+  // ---------- decomposition bars ----------
+  // rows: [{label, parts: [{value, fill, name}], net, netLabel, tip}]
+  function decompChart(container, rows) {
+    container.innerHTML = "";
+    const W = Math.max(260, container.clientWidth), narrow = W < 560;
+    const sub = 12, gap = 3, rowH = sub * 2 + gap + 16, m = { l: narrow ? 8 : 160, r: 12, t: 6, b: 8 };
+    const head = narrow ? 16 : 0;
+    const H = m.t + m.b + rows.length * (rowH + head);
+    const ext = Math.max(1, ...rows.flatMap(r => r.parts.map(p => Math.abs(p.value))), ...rows.map(r => Math.abs(r.net)));
+    const room = narrow ? 70 : 150;
+    const tx = lin(-ext, ext, m.l + room, W - m.r - room);
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, height: H, role: "img", "aria-label": "Change in each layer's real holdings, split into growth and share effects" }, container);
+    el("line", { x1: tx(0), x2: tx(0), y1: m.t, y2: H - m.b, style: "stroke:var(--axis);stroke-width:1.5" }, svg);
+    const tip = tipFor(container);
+    rows.forEach((r, i) => {
+      const y0 = m.t + i * (rowH + head) + head;
+      const name = el("text", { x: narrow ? m.l : m.l - 10, y: narrow ? y0 - 3 : y0 + rowH / 2, "text-anchor": narrow ? "start" : "end", class: "lbl" }, svg);
+      name.textContent = r.label;
+      r.parts.forEach((p, j) => {
+        const y = y0 + 6 + j * (sub + gap), a = tx(Math.min(0, p.value)), b = tx(Math.max(0, p.value));
+        el("rect", { x: a, y, width: Math.max(1, b - a), height: sub, rx: 2, style: `fill:${p.fill}` }, svg);
+      });
+      const netX = r.net >= 0 ? Math.max(...r.parts.map(p => tx(Math.max(0, p.value)))) + 6 : Math.min(...r.parts.map(p => tx(Math.min(0, p.value)))) - 6;
+      const t = el("text", { x: netX, y: y0 + 6 + sub + 2, "text-anchor": r.net >= 0 ? "start" : "end", class: "lbl" }, svg);
+      t.textContent = r.netLabel;
+      const hit = el("rect", { x: 0, y: y0 - head, width: W, height: rowH + head, style: "fill:transparent" }, svg);
+      const on = (ev) => { const bb = svg.getBoundingClientRect(); tip.innerHTML = r.tip; tip.hidden = false; placeTip(container, tip, ev.clientX - bb.left, ev.clientY - bb.top); };
+      hit.addEventListener("pointermove", on); hit.addEventListener("pointerdown", on);
+      hit.addEventListener("pointerleave", () => tip.hidden = true);
+    });
+  }
+
+  // ---------- decomposition maths ----------
+  // ΔW = growth effect + share effect, with average weights (exact, order-free).
+  function decompose(c, k, B, E) {
+    const i0 = yi(c, B), i1 = yi(c, E), L = c.layers[k];
+    const s0 = L.share[i0], s1 = L.share[i1], T0 = total(c, B), T1 = total(c, E);
+    return { s0, s1, T0, T1, ...PieCore.decompose(s0, s1, T0, T1), a0: L.avg[i0], a1: L.avg[i1], n1: adults(E) * width(L) };
+  }
+
+  // ---------- sections ----------
+  function renderFindings() {
+    const c = D.concepts.hweal, sc = c.scenarios, k = "p99.999p100", E = c.years[c.years.length - 1], B = 1990;
+    const i1 = yi(c, E), i0 = yi(c, B);
+    const at = (name) => { const ys = sc.years[name], j = ys.indexOf(E); return j < 0 ? null : sc.layers[name][k][j]; };
+    const range = topRange(E), lo = range.lo, hi = range.hi;
+    const T = (y) => Object.values(c.layers).reduce((s, L) => s + L.avg[yi(c, y)] * width(L), 0) * adults(y);
+    const dT = T(E) - T(B);
+    const capt = (key, s1) => ((s1 ?? c.layers[key].share[i1]) * T(E) - c.layers[key].share[i0] * T(B)) / dT;
+    const capts = ["dwa_lower", "ggp_low"].map(at).filter(v => v != null).concat(range.floor ? [range.floor.share] : []).map(v => capt(k, v)).concat([capt(k)]);
+    const bot = c.layers.p0p50;
+    // Last year WID does not extrapolate.
+    const pt = D.concepts.ptinc, dt = D.concepts.diinc, je = pt.extrapolated_from ? pt.extrapolated_from - 1 : pt.years[pt.years.length - 1];
+    const before = pt.layers.p0p50.share[yi(pt, je)], after = dt.layers.p0p50.share[yi(dt, je)];
+    const P = D.purchasing;
+    let paris = "";
+    if (P) {
+      const inc = P.disposable_income, pr = P.paris_flat_eur_m2, y = inc.years[inc.years.length - 1], y0 = inc.years[0];
+      const v = (yy) => 70 * pr.values[pr.years.indexOf(yy)] / inc.bottom50[inc.years.indexOf(yy)];
+      paris = `<div class="finding"><span class="k">A 70 m² flat in Paris</span><span class="v">${nf(0).format(v(y))} <small>years of income</small></span><p>For one person in the poorer half of incomes, in ${y}. It was ${nf(0).format(v(y0))} years in ${y0}.</p></div>`;
+    }
+    document.getElementById("findings").innerHTML = `
+      <div class="finding"><span class="k">Richest 0.001% · ${people(adults(E) * 1e-5)} adults</span><span class="v">${pct(c.layers[k].share[i1])} <small>of all wealth</small></span><p>${pct(c.layers[k].share[i0])} in ${B}. Other estimates give ${pct(lo)} to ${pct(hi)} for ${E}${range.floor ? ` (the low end: what Forbes counts for ${range.floor.n} billionaires alone)` : ""}. The least certain number on this page.</p></div>
+      <div class="finding"><span class="k">Poorest half · ${people(adults(E) / 2)} adults</span><span class="v">${pct(bot.share[i1])} <small>of all wealth</small></span><p>${pct(bot.share[i0])} in ${B}. Yet their average real wealth still rose, from ${eur(bot.avg[i0])} to ${eur(bot.avg[i1])}.</p></div>
+      <div class="finding"><span class="k">Of the wealth gained since ${B}</span><span class="v">${pct(capt(k))} <small>vs</small> ${pct(capt("p0p50"))}</span><p>The richest 0.001%'s holdings and the poorest half's rose by these shares of the ${eur(dT)} rise in real household wealth (${pct(Math.min(...capts))} to ${pct(Math.max(...capts))} for the richest with other estimates). Most of the rise is house and share prices.</p></div>
+      <div class="finding"><span class="k">Taxes, benefits, public services</span><span class="v">${pct(before)} <small>→</small> ${pct(after)}</span><p>The poorest half's share of income before tax, and after taxes, benefits and public services such as health care and schools (${je}, the latest year not extrapolated; each ranked by its own income).</p></div>
+      ${paris}
+      ${(() => { const v = (D.vintages || []).find(r => r.group === "top 0.001%"); return v ? `<div class="finding"><span class="k">How sure are we?</span><span class="v">${nf(1).format(v.earlier * 100)}% <small>or</small> ${pct(v.current)}</span><p>The richest 0.001%'s share of wealth in ${v.year}: first and latest estimates by the same research team. Other sources agree on the poorest half's share, not on the middle or the top.</p></div>` : ""; })()}`;
+    const dwaGap = (() => { const cmp = (D.comparison || {}).wealth_top5 || []; const w = cmp.find(s => s.source.startsWith("WID")), e = cmp.find(s => s.source.startsWith("ECB")); if (!w || !e) return null; const g = e.years.map((y, j) => { const i = w.years.indexOf(y); return i < 0 || w.values[i] == null || e.values[j] == null ? null : w.values[i] - e.values[j]; }).filter(v => v != null); return g.length ? [Math.min(...g), Math.max(...g)] : null; })();
+    document.getElementById("findings-note").textContent = `Wealth figures use the World Inequality Database as published, from ${B} (after it began adjusting its top group to Forbes in ${sc.forbes_calibrated_from}).${dwaGap ? ` Not every source agrees: the ECB / Banque de France accounts put the richest 5%'s share ${nf(1).format(dwaGap[0] * 100)}–${nf(1).format(dwaGap[1] * 100)} points lower.` : ""} Everything below can be changed and checked.`;
+  }
+
+  function scenarioNote(c) {
+    const parts = [];
+    if (state.concept === "hweal" && state.scenario !== "wid") {
+      const sc = D.concepts.hweal.scenarios, yrs = sc.corrected_years[state.scenario];
+      parts.push(yrs.length
+        ? `Scenario: ${sc.params[state.scenario].label}. It changes ${yrs.length} years between ${yrs[0]} and ${yrs[yrs.length - 1]}; years inside that span with no published Challenges total use a value interpolated between neighbouring years; all other years are WID as published.${state.scenario === "dwa_lower" ? " This one is our illustration: the accounts publish nothing finer than the top 5%." : ""}`
+        : `Scenario: ${sc.params[state.scenario].label}. It changes no year: under these assumptions WID already holds at least the rich-list total.`);
+    }
+    if (state.concept === "hweal" && state.from < D.concepts.hweal.scenarios.forbes_calibrated_from) parts.push(`The start year is before ${D.concepts.hweal.scenarios.forbes_calibrated_from}, when WID starts lifting its top group to Forbes totals; changes at the very top mix two methods.`);
+    if (state.prices === "cpi") parts.push("Real values use INSEE consumer prices.");
+    if (state.smooth > 1) parts.push("Values are 3-year averages (2-year at the ends of the series).");
+    return parts.length ? `<span class="note">${parts.join(" ")}</span><br>` : "";
+  }
+
+  function renderPie() {
+    const c = C(), keys = layerKeys();
+    legend(document.getElementById("pie-legend"), keys.map((k, i) => ({ label: LAYER_LABEL[k], color: color(i) })));
+    stackChart(document.getElementById("pie-chart"), c);
+    const i0 = yi(c, state.from), i1 = yi(c, state.to);
+    const top = c.layers["p99.999p100"], bot = c.layers.p0p50;
+    document.getElementById("pie-summary").innerHTML = scenarioNote(c) +
+      `In ${state.to}, the top 0.001% (${people(adults(state.to) * 1e-5)} adults) held <strong>${pct(top.share[i1])}</strong> of all ${CONCEPT_NAME[state.concept]}, against ${pct(top.share[i0])} in ${state.from}. The bottom 50% (${people(adults(state.to) / 2)} adults) held <strong>${pct(bot.share[i1])}</strong>, against ${pct(bot.share[i0])}.`;
+    const box = document.getElementById("multiples"); box.innerHTML = "";
+    const cards = keys.map((k, li) => {
+      const card = document.createElement("div"); card.className = "card";
+      const L = c.layers[k];
+      card.innerHTML = `<h3><i style="background:${color(li)}"></i>${LAYER_LABEL[k]}</h3><p class="note">${pct(L.share[i0])} → ${pct(L.share[i1])} · ${people(adults(state.to) * width(L))} adults</p><div class="chart"></div>`;
+      box.appendChild(card);
+      return [k, li, card];
+    });
+    cards.forEach(([k, li, card]) => lineChart(card.querySelector(".chart"), [{ label: LAYER_LABEL[k], color: color(li), xs: c.years, ys: c.layers[k].share }], {
+      height: 130, ml: 46, yMin: 0, yTickCount: 3, yFmt: (v) => pct(v), table: false, markers: [state.from, state.to], bands: qualityRuns(c),
+      dashed: state.concept === "hweal" ? [D.concepts.hweal.scenarios.forbes_calibrated_from] : [], aria: `Share of ${LAYER_LABEL[k]} over time`
+    }));
+  }
+
+  function renderChange() {
+    const c = C(), B = state.from, E = state.to, flow = state.concept === "hweal" ? "" : " a year";
+    const hold = state.concept === "hweal" ? "Holdings" : "Yearly income";
+    const rows = layerKeys().map((k) => {
+      const d = decompose(c, k, B, E);
+      return { k, d, label: LAYER_LABEL[k],
+        parts: [{ value: d.growth, fill: "var(--growth)" }, { value: d.share, fill: d.share >= 0 ? "var(--gain)" : "var(--loss)" }],
+        net: d.net, netLabel: `net ${eur(d.net, { sign: true })}`,
+        tip: `<b>${LAYER_LABEL[k]}</b><div class="row"><span>${hold} ${B}</span><span>${eur(d.w0)}</span></div><div class="row"><span>${hold} ${E}</span><span>${eur(d.w1)}</span></div><div class="row"><span>Growth effect</span><span>${eur(d.growth, { sign: true })}</span></div><div class="row"><span>Share effect</span><span>${eur(d.share, { sign: true })}</span></div><div class="row"><span>Share ${B} → ${E}</span><span>${pct(d.s0)} → ${pct(d.s1)}</span></div><div class="row"><span>Avg per adult</span><span>${eur(d.a0)} → ${eur(d.a1)}</span></div>` };
+    });
+    legend(document.getElementById("change-legend"), [
+      { label: "Growth effect (at the average of the start and end shares)", color: "var(--growth)" },
+      { label: "Share effect: share went up", color: "var(--gain)" },
+      { label: "Share effect: share went down", color: "var(--loss)" }
+    ]);
+    decompChart(document.getElementById("change-chart"), rows);
+    const T0 = total(c, B), T1 = total(c, E), dT = T1 - T0;
+    const top = rows[rows.length - 1].d, bot = rows[0].d;
+    // The ratio to the total change is only meaningful if the total rose clearly.
+    const meaningful = dT > 0.05 * T0;
+    document.getElementById("change-summary").innerHTML = scenarioNote(c) + (dT > 0
+      ? `Between ${B} and ${E}, total real ${flow ? "yearly " : ""}${CONCEPT_NAME[state.concept]} rose by ${nw(eur(dT))}. ` + (meaningful
+        ? `The top 0.001%'s holdings rose by an amount equal to <strong>${pct(top.net / dT)}</strong> of that rise, while it held ${pct(top.s0)} at the start; the bottom 50%'s by <strong>${pct(bot.net / dT)}</strong>, while it held ${pct(bot.s0)}. `
+        : `The total moved too little for shares of the rise to be meaningful; see the euro amounts. `) + `The bottom half's real ${hold.toLowerCase()} went ${bot.net >= 0 ? "up" : "down"} by ${nw(eur(Math.abs(bot.net)))}; had it kept its ${B} share, they would have gone up by ${nw(eur(bot.s0 * dT))}.`
+      : `Between ${B} and ${E}, total real ${flow ? "yearly " : ""}${CONCEPT_NAME[state.concept]} fell by ${nw(eur(-dT))}.`) +
+      (flow ? ` <span class="note">Both income views add up to the same national total; they differ only in who receives it.</span>` : "");
+    document.getElementById("change-table").innerHTML = `<table><thead><tr><th>Layer</th><th>Adults ${E}</th><th>Share ${B}</th><th>Share ${E}</th><th>${hold} ${B}</th><th>${hold} ${E}</th><th>Growth effect</th><th>Share effect</th><th>Change as % of total change</th><th>Avg per adult ${B}</th><th>Avg per adult ${E}</th></tr></thead><tbody>${
+      rows.map(r => `<tr><td>${r.label}</td><td>${people(r.d.n1)}</td><td>${pct(r.d.s0)}</td><td>${pct(r.d.s1)}</td><td>${eur(r.d.w0)}</td><td>${eur(r.d.w1)}</td><td>${eur(r.d.growth, { sign: true })}</td><td class="${r.d.share >= 0 ? "pos" : "neg"}">${eur(r.d.share, { sign: true })}</td><td>${meaningful ? pct(r.d.net / dT) : "–"}</td><td>${eur(r.d.a0)}</td><td>${eur(r.d.a1)}</td></tr>`).join("")
+    }</tbody></table><p class="note">Real euros${flow ? " per year" : ""} in ${D.meta.price_base_year} prices. Valuing the share effect at the start-year total instead would give ${eur((top.s1 - top.s0) * T0, { sign: true })} for the top 0.001%; at the end-year total ${eur((top.s1 - top.s0) * T1, { sign: true })}.</p>`;
+  }
+
+  function renderSensitivity() {
+    const c = C(), E = state.to;
+    const groups = [
+      { label: "Top 0.001%", color: color(6), keys: ["p99.999p100"] },
+      { label: "Top 1% (four top layers)", color: color(3), keys: ["p99p99.9", "p99.9p99.99", "p99.99p99.999", "p99.999p100"] },
+      { label: "Middle 40%", color: color(1), keys: ["p50p90"] },
+      { label: "Bottom 50%", color: color(0), keys: ["p0p50"] }
+    ];
+    const starts = c.years.filter(y => y < E);
+    const series = groups.map(g => ({ label: g.label, color: g.color, xs: starts, ys: starts.map(B => g.keys.reduce((s, k) => s + decompose(c, k, B, E).share, 0)) }));
+    legend(document.getElementById("sens-legend"), series.map(s => ({ label: s.label, color: s.color })), "line");
+    lineChart(document.getElementById("sens-chart"), series, {
+      height: 280, zero: true, yFmt: (v) => eur(v, { sign: true }), markers: [state.from], bands: qualityRuns(c),
+      dashed: state.concept === "hweal" ? [D.concepts.hweal.scenarios.forbes_calibrated_from] : [],
+      tipTitle: (y) => `Share effect from ${y} to ${E}`, aria: "Share effect by start year"
+    });
+  }
+
+  function renderLevels() {
+    const c = C(), keys = layerKeys();
+    const what = { hweal: ["Real wealth per person", "Everyone's slice, in euros"], ptinc: ["Real income per person", "Everyone's yearly income before tax, in euros"], diinc: ["Real income per person", "Everyone's yearly income after tax and public services, in euros"] }[state.concept];
+    document.getElementById("levels-kicker").textContent = `03 · ${what[0]}`;
+    document.getElementById("levels-title").textContent = what[1];
+    const series = keys.map((k, i) => ({ label: LAYER_LABEL[k], short: LAYER_LABEL[k], color: color(i), xs: c.years, ys: c.layers[k].avg }));
+    legend(document.getElementById("levels-legend"), series.map(s => ({ label: s.label, color: s.color })), "line");
+    document.getElementById("levels-note").textContent = `Average per adult in each layer, constant ${D.meta.price_base_year} euros, logarithmic scale: equal vertical distances mean equal growth rates. A falling share can hide a rising level when the whole pie grows.`;
+    lineChart(document.getElementById("levels-chart"), series, {
+      log: true, height: 380, endLabels: true, yFmt: (v) => eur(v), markers: [state.from, state.to], bands: qualityRuns(c),
+      dashed: state.concept === "hweal" ? [D.concepts.hweal.scenarios.forbes_calibrated_from] : [], aria: "Average per adult in each layer, log scale"
+    });
+  }
+
+  function renderGIC() {
+    const c = base(), i0 = yi(c, state.from), i1 = yi(c, state.to), yrs = state.to - state.from;
+    const bins = c.gp.bins, mean0 = c.avg.p0p100[i0], mean1 = c.avg.p0p100[i1];
+    const floor = 0.01 * Math.min(mean0, mean1);
+    const pf = priceFactor(state.to) / priceFactor(state.from);
+    const xs = [], ys = [];
+    bins.forEach((b, j) => {
+      const a = c.gp.avg[j][i0], z = c.gp.avg[j][i1];
+      xs.push(j); ys.push(a > floor && z > floor && yrs > 0 ? Math.pow(z / a * pf, 1 / yrs) - 1 : null);
+    });
+    const avgG = yrs > 0 ? Math.pow(mean1 / mean0 * pf, 1 / yrs) - 1 : 0;
+    const tickAt = { 10: "P10", 25: "P25", 50: "P50", 75: "P75", 90: "P90", 99: "P99", 108: "P99.9", 117: "P99.99", 126: "top" };
+    const label = (j) => bins[j].replace(/^p([\d.]+)p([\d.]+)$/, "P$1–P$2");
+    const skipped = ys.filter(v => v == null).length;
+    lineChart(document.getElementById("gic-chart"), [
+      { label: "This percentile group", color: "var(--s1)", xs, ys },
+      { label: "Average of everyone", color: "var(--ink-2)", xs: [0, 126], ys: [avgG, avgG] }
+    ], { height: 320, xDomain: [0, 126], zero: true, yFmt: (v) => pct(v, true), xTicks: Object.keys(tickAt).map(Number), xFmt: (j) => tickAt[j], tipTitle: (j) => label(j), aria: "Growth incidence curve" });
+    // Bottom half: growth of the layer's own average, not an average of rates.
+    const L = c.layers.p0p50, g50 = yrs > 0 ? Math.pow(L.avg[i1] / L.avg[i0] * pf, 1 / yrs) - 1 : null;
+    const topG = ys[126];
+    const crossBreak = state.concept === "hweal" && state.from < D.concepts.hweal.scenarios.forbes_calibrated_from;
+    document.getElementById("gic-summary").innerHTML = yrs <= 0 ? "Pick a start year before the end year." :
+      `From ${state.from} to ${state.to}, average ${CONCEPT_NAME[state.concept]} per adult grew <strong>${pct(avgG, true)} a year</strong> in real terms. The bottom 50% as a whole grew ${pct(g50, true)} a year; the top 0.001% group ${topG == null ? "n/a" : pct(topG, true)} a year${crossBreak ? ", across the 1988 start of WID's Forbes calibration" : ""}.${skipped ? ` ${skipped} groups near zero are left out, since a growth rate from almost nothing is meaningless.` : ""}`;
+  }
+
+  function renderTop() {
+    const c = D.concepts.hweal, defl = D.deflator, rl = D.rich_lists || {}, sc = c.scenarios;
+    const totalBins = (y) => Object.values(c.layers).reduce((s, L) => s + L.avg[yi(c, y)] * width(L), 0) * adults(y);
+    const wid = { label: "WID: top 0.001% of adults", color: "var(--s7)", xs: [], ys: [] };
+    const wid2 = { label: "WID: top 0.01% of adults", color: "var(--s1)", xs: [], ys: [] };
+    c.years.forEach((y, i) => { if (y >= 1990) {
+      wid.xs.push(y); wid.ys.push(c.layers["p99.999p100"].share[i] * totalBins(y));
+      wid2.xs.push(y); wid2.ys.push((c.layers["p99.999p100"].share[i] + c.layers["p99.99p99.999"].share[i]) * totalBins(y));
+    } });
+    const ch = rl.challenges_500 || {}, fb = rl.forbes_france_billionaires || {};
+    const chS = { label: "Challenges: 500 largest family fortunes", color: "var(--s2)", xs: [], ys: [] };
+    Object.keys(ch).sort().forEach(y => { const v = parseFloat(ch[y].total_eur_bn); if (defl[y] && isFinite(v)) { chS.xs.push(+y); chS.ys.push(v * 1e9 / defl[y]); } });
+    const fbS = { label: "Forbes: French billionaires", color: "var(--s3)", xs: [], ys: [] };
+    // Totals as quoted in published articles: in euros when given, otherwise dollars converted at the year's average rate.
+    Object.keys(fb).sort().forEach(y => {
+      const eurv = parseFloat(fb[y].total_eur_bn), usd = parseFloat(fb[y].total_usd_bn), fx = D.eur_per_usd[y];
+      const nominal = isFinite(eurv) ? eurv * 1e9 : (isFinite(usd) && fx ? usd * 1e9 * fx : null);
+      if (nominal != null && defl[y]) { fbS.xs.push(+y); fbS.ys.push(nominal / defl[y]); }
+    });
+    const series = [wid2, wid, chS, fbS].filter(s => s.xs.length);
+    legend(document.getElementById("top-legend"), series.map(s => ({ label: s.label, color: s.color })), "line");
+    const last = c.years[c.years.length - 1];
+    lineChart(document.getElementById("top-chart"), series, { height: 320, yMin: 0, yFmt: (v) => eur(v), xDomain: [1990, last], bands: qualityRuns(c), aria: "Top wealth: WID vs rich lists" });
+    const at = (S, y) => { const j = S.xs.indexOf(y); return j < 0 ? null : S.ys[j]; };
+    const chk = sc.rich_list_check.ggp_low, chkC = sc.rich_list_check.ggp_central;
+    const j = chk.years.indexOf(last), jc = chkC.years.indexOf(last);
+    const fy = fbS.xs.filter(y => y <= last).pop();
+    const firstCh = chS.xs.find(y => at(wid2, y) != null);
+    document.getElementById("top-summary").innerHTML =
+      `In ${last}, WID's top 0.001% (${people(adults(last) * 1e-5)} adults) holds ${eur(at(wid, last))}${fy ? `, more than the ${eur(at(fbS, fy))} Forbes counts for ${fb[fy].n_billionaires} French billionaires in ${fy}` : ""}. Challenges' 500 families add up to ${eur(at(chS, last))}: ${pct(at(chS, firstCh) / at(wid2, firstCh))} of WID's whole top 0.01% in ${firstCh}, ${pct(at(chS, last) / at(wid2, last))} in ${last}. ` +
+      (j >= 0 ? `Under published assumptions the list covers ${people(chkC.adults_covered)} adults (10 members per family) and, after the non-resident cut, ${eur(chkC.list_eur[jc])}: below WID's ${eur(chkC.wid_top_n_eur[jc])} for that many adults, so no correction. With one member per family (${people(chk.adults_covered)} adults) the list's ${eur(chk.list_eur[j])} ${chk.list_eur[j] > chk.wid_top_n_eur[j] ? "exceeds" : "stays below"} WID's ${eur(chk.wid_top_n_eur[j])}.` : "");
+    const years = [...new Set(series.flatMap(s => s.xs))].sort();
+    document.getElementById("top-table").innerHTML = `<table><thead><tr><th>Year</th>${series.map(s => `<th>${s.label}</th>`).join("")}<th>WID richest ${people(chk.adults_covered)} adults</th><th>List, 1 member, −20%</th></tr></thead><tbody>${
+      years.map(y => { const k = chk.years.indexOf(y); return `<tr><td>${y}</td>${series.map(s => { const v = at(s, y); return `<td>${v == null ? "" : eur(v)}</td>`; }).join("")}<td>${k >= 0 ? eur(chk.wid_top_n_eur[k]) : ""}</td><td>${k >= 0 ? eur(chk.list_eur[k]) : ""}</td></tr>`; }).join("")
+    }</tbody></table><p class="note">Constant ${D.meta.price_base_year} euros. Forbes and Challenges figures are totals quoted in published articles (one source and quote per year in the repository): Forbes in euros when the article gives euros, otherwise in dollars converted at the year's average rate; the 2021 Forbes figure is a lower bound ("more than"). The scenario columns fill years with no published Challenges total by interpolating between neighbouring years. Challenges is published in July and valued at market prices; WID is a yearly figure, so the two can be months apart.</p>`;
+
+    // Band chart: top 0.001% share under each assumption.
+    const names = ["dwa_lower", "ggp_low", "no_cut"];
+    const bandSeries = [{ label: "WID as published", color: "var(--s7)", xs: c.years.filter(y => y >= 1990), ys: c.years.filter(y => y >= 1990).map(y => c.layers["p99.999p100"].share[yi(c, y)]) }]
+      .concat(names.map((n, i) => ({ label: { dwa_lower: "ECB / BdF level for the top 5%", ggp_low: "Rich list, 1 member per family", no_cut: "Rich list, no non-resident cut" }[n],
+        color: ["var(--s1)", "var(--s2)", "var(--s8)"][i], dash: ["2 3", "6 3", "10 4"][i], xs: sc.years[n], ys: sc.layers[n]["p99.999p100"] })));
+    legend(document.getElementById("band-legend"), bandSeries.map(s => ({ label: s.label, color: s.color })), "line");
+    lineChart(document.getElementById("band-chart"), bandSeries, { height: 260, yMin: 0, xDomain: [1990, last], yFmt: (v) => pct(v), aria: "Top 0.001% wealth share by scenario" });
+
+    const vt = D.vintages || [];
+    document.getElementById("vintage-table").innerHTML = vt.length ? `<table><thead><tr><th>${vt[0].year}, share of wealth</th><th>2016 paper</th><th>WID today</th></tr></thead><tbody>${
+      vt.map(r => `<tr><td>${r.group[0].toUpperCase() + r.group.slice(1)}</td><td>${pct(r.earlier)}</td><td>${pct(r.current)}</td></tr>`).join("")}</tbody></table>` : "";
+    document.getElementById("vintage-note").textContent = "Garbinti, Goupille-Lebret & Piketty, WID working paper 2016/5, against the WID data used here (after the Forbes calibration and later revisions).";
+    const tb = sc.topbin_check[sc.topbin_check.length - 1];
+    document.getElementById("topbin-note").textContent = tb ? `A warning on WID's top group: in ${tb.year} its entry threshold (${eur(tb.threshold)}) sits ${nf(1).format(tb.threshold / tb.projected)} times above what the thresholds just below it imply at the same slope (${eur(tb.projected)}). No smooth distribution produces such a jump; it most likely comes from refitting the distribution after the Forbes top-up (a smaller jump exists in earlier years). It does not affect the scenarios, which always take WID's top group whole.` : "";
+  }
+
+  function renderTopIncome() {
+    const t = D.ipp_top_income; if (!t) return;
+    const M = t.measures, cols = ["taxable", "dividend_imputed", "comprehensive"];
+    document.getElementById("ipp-table").innerHTML = `<table><thead><tr><th>${t.year}, € bn per group</th><th>WID before tax (adults)</th>${cols.map(k => `<th>${M[k].label.replace(/^IPP: /, "IPP ")}</th>`).join("")}</tr></thead><tbody>${
+      t.groups.map((g, i) => `<tr><td>${g[0].toUpperCase() + g.slice(1)} <span class="range">(${people(t.wid_adults[i])} adults · ${people(M.taxable.households[i])} households)</span></td><td>${nf(1).format(t.wid_pretax_bn[i])}</td>${cols.map(k => `<td>${M[k].bn[i] == null ? "n/a" : nf(1).format(M[k].bn[i])}</td>`).join("")}</tr>`).join("")
+    }</tbody></table>`;
+    const r = (k, i) => M[k].bn[i] / t.wid_pretax_bn[i], last = t.groups.length - 1;
+    document.getElementById("ipp-summary").innerHTML =
+      `WID is close to IPP when retained profits are attributed in proportion to dividends, as distributional national accounts usually do (${nf(1).format(t.wid_pretax_bn[last])} vs ${nf(1).format(M.dividend_imputed.bn[last])} bn for the top 0.001%). Attributing them through actual ownership chains, IPP's group totals are <strong>${nf(1).format(r("comprehensive", last))}×</strong> WID's amount for the top 0.001% and ${nf(1).format(r("comprehensive", 2))}× for the top 0.01%, but ${nf(2).format(r("comprehensive", 1))}× for the top 0.1% and ${nf(2).format(r("comprehensive", 0))}× for the top 1%. (Our ratios from IPP's published figures; IPP do not compare with WID.) This suggests WID understates the income of the very top; for the top 1% as a whole it depends on comparing euros or shares. The gap is indicative: the result depends on which IPP measure is used, IPP's groups are tax households (378 for the top 0.001%, containing more people than WID's 507 adults, which pushes the ratios up), and this is one year.`;
+  }
+
+  function renderCrosscheck() {
+    const cmp = D.comparison, grid = document.getElementById("cc-grid");
+    if (!cmp) return;
+    const titles = {
+      wealth_top10: "Wealth: top 10% share", wealth_top5: "Wealth: top 5% share", wealth_top1: "Wealth: top 1% share",
+      wealth_bottom50: "Wealth: bottom 50% share", wealth_middle40: "Wealth: middle 40% share", income_top10: "Income after tax: top 10% share", income_bottom50: "Income after tax: bottom 50% share"
+    };
+    const colorOf = (src) => src.startsWith("WID") ? "var(--s1)" : src.startsWith("ECB") ? "var(--s2)" : src.includes("distributed") ? "var(--s4)" : "var(--s3)";
+    const short = (src) => src.startsWith("WID") ? "WID" : src.startsWith("ECB") ? "ECB / BdF accounts" : src.includes("distributed") ? "INSEE national accounts 2019" : src.includes("wealth survey") ? "INSEE wealth survey (gross)" : "INSEE income survey";
+    grid.innerHTML = "";
+    const expertGrid = document.getElementById("cc-grid-expert"); expertGrid.innerHTML = "";
+    const main = ["wealth_bottom50", "wealth_middle40", "wealth_top5"];
+    const order = main.concat(Object.keys(titles).filter(k => !main.includes(k)));
+    const cards = order.filter((key) => (cmp[key] || []).length).map((key) => {
+      const title = titles[key];
+      const card = document.createElement("div"); card.className = "card";
+      card.innerHTML = `<h3>${title}</h3><div class="legend"></div><div class="chart"></div>`;
+      (main.includes(key) ? grid : expertGrid).appendChild(card);
+      return [key, title, card];
+    });
+    const lastYear = Math.max(...Object.values(cmp).flat().flatMap(s => s.years.filter(y => y != null)));
+    cards.forEach(([key, title, card]) => {
+      const series = cmp[key].map(s => ({ label: short(s.source), color: colorOf(s.source), xs: s.years, ys: s.values, dots: s.style === "dots" || s.years.length === 1, dash: s.source.startsWith("WID") ? null : "6 3" }));
+      legend(card.querySelector(".legend"), series.map(s => ({ label: s.label, color: s.color })), "line");
+      lineChart(card.querySelector(".chart"), series, { height: 220, xDomain: [key.startsWith("income") ? 1975 : 1990, lastYear], yFmt: (v) => pct(v), tipFmt: (v) => pct(v), aria: title });
+    });
+    // Gaps computed from the data rather than typed in.
+    const gap = (key, a, b, from, to) => {
+      const A = cmp[key].find(s => s.source.startsWith(a)), Bs = cmp[key].find(s => s.source.startsWith(b));
+      if (!A || !Bs) return null;
+      const d = [];
+      Bs.years.forEach((y, j) => { const i = A.years.indexOf(y); if (y != null && y >= from && y <= to && i >= 0 && A.values[i] != null && Bs.values[j] != null) d.push(A.values[i] - Bs.values[j]); });
+      return d.length ? [Math.min(...d), Math.max(...d)] : null;
+    };
+    const g5 = gap("wealth_top5", "WID", "ECB", 0, 9999), gm = gap("wealth_middle40", "ECB", "WID", 0, 9999), gb = gap("wealth_bottom50", "WID", "ECB", 0, 9999), gi = gap("income_top10", "WID", "INSEE ERFS", 1996, 2018);
+    const sg = (v) => (v < 0 ? "−" : v > 0 ? "+" : "") + nf(1).format(Math.abs(v * 100));
+    const f = (r) => r ? `${sg(r[0])} to ${sg(r[1])} points` : "n/a";
+    document.getElementById("cc-notes").innerHTML =
+      `What the comparison shows. Bottom 50% of wealth: WID minus the ECB / Banque de France accounts is ${f(gb)}. Middle 40%: the ECB accounts are higher than WID by ${f(gm)}. Top 5%: WID is higher than the ECB accounts by ${f(g5)} every year since 2009, before and after WID's extrapolation starts. INSEE's wealth survey shows a much smaller top 1%, as expected from a survey. Income after tax, top 10%: WID minus INSEE's income survey ranges from ${f(gi)} over 1996–2018, and the two move in opposite directions over that period. INSEE's 2019 national accounts put the bottom 50% at 38% of income after public services, against 32% in WID. Possible reasons, not separated here: INSEE keeps people ranked by their ordinary income (which mechanically raises the bottom's share), counts persons by consumption units rather than adults, and attributes education and collective spending by use, where WID attributes them in proportion to income (health is close to the same amount per person in both).`;
+  }
+
+  function renderHousing() {
+    const P = D.purchasing; if (!P) return;
+    const inc = P.disposable_income, rate = P.mortgage_rate;
+    const groups = [
+      { label: "Bottom 50%", color: color(0), key: "bottom50" },
+      { label: "Middle 40%", color: color(1), key: "middle40" },
+      { label: "Top 10%", color: color(2), key: "top10" }
+    ];
+    const annuity = PieCore.annuity;
+    for (const [id, prices] of [["paris", P.paris_flat_eur_m2], ["rest", P.rest_flat_eur_m2]]) {
+      const yearsS = [], payS = [];
+      groups.forEach(g => {
+        const xs = [], ys = [], px = [], py = [];
+        prices.years.forEach((y, j) => {
+          const i = inc.years.indexOf(y); if (i < 0) return;
+          const cost = 70 * prices.values[j], income = inc[g.key][i];
+          xs.push(y); ys.push(cost / income);
+          const k = rate.years.indexOf(y); if (k >= 0) { px.push(y); py.push(cost * annuity(rate.values[k], 25) / income); }
+        });
+        yearsS.push({ label: g.label, color: g.color, xs, ys });
+        payS.push({ label: g.label, color: g.color, xs: px, ys: py });
+      });
+      legend(document.getElementById(`${id}-legend`), yearsS.map(s => ({ label: s.label, color: s.color })), "line");
+      lineChart(document.getElementById(`${id}-chart`), yearsS, { height: 240, yMin: 0, yFmt: (v) => `${nf(0).format(v)} yrs`, tipFmt: (v) => `${nf(1).format(v)} years`, aria: `Years of income for a 70 m2 flat (${id})` });
+      legend(document.getElementById(`${id}pay-legend`), payS.map(s => ({ label: s.label, color: s.color })), "line");
+      lineChart(document.getElementById(`${id}pay-chart`), payS, { height: 240, yMin: 0, yFmt: (v) => pct(v), refLines: [{ y: 1, label: "100% of income" }], aria: `Yearly repayment as a share of income (${id})` });
+    }
+    const pc = P.precommitted_share;
+    lineChart(document.getElementById("precommit-chart"), [{ label: "Pre-committed share", color: "var(--s1)", xs: pc.years, ys: pc.values }], { height: 240, yMin: 0, yFmt: (v) => pct(v), aria: "Pre-committed spending share" });
+    const comp = D.composition, names = { p0p50: "Bottom 50%", p50p90: "Middle 40%", p90p100: "Top 10%", p99p100: "Top 1%", "p99.9p100": "Top 0.1%" };
+    const cs = Object.keys(names).map((g, i) => {
+      const G = comp.groups[g];
+      return { label: names[g], color: color(i), xs: comp.years, ys: comp.years.map((_, j) => { const gross = G.hou[j] + G.bus[j] + G.fin[j]; return gross > 0 ? G.hou[j] / gross : null; }) };
+    });
+    legend(document.getElementById("comp-legend"), cs.map(s => ({ label: s.label, color: s.color })), "line");
+    lineChart(document.getElementById("comp-chart"), cs, { height: 240, yMin: 0, yFmt: (v) => pct(v), aria: "Housing share of gross assets by group" });
+    const r = (s, a, b) => { const i = s.years.indexOf(a), j = s.years.indexOf(b); return s.values[j] / s.values[i] - 1; };
+    const cy = P.cpi_bottom50.years, c0 = cy[0], c1 = cy[cy.length - 1];
+    document.getElementById("prices-note").innerHTML = `Do prices differ by income? INSEE's consumer price index rose ${pct(r(P.cpi_bottom50, c0, c1))} for the poorest half of households between ${c0} and ${c1}, ${pct(r(P.cpi_middle40, c0, c1))} for the next 40% and ${pct(r(P.cpi_top10, c0, c1))} for the richest tenth. Consumer price indices also leave out house purchases, so they cannot show how affordable buying a home has become. Fixed costs differ far more: the share of income committed in advance went from ${pct(pc.values[0])} in ${pc.years[0]} to ${pct(pc.values[pc.values.length - 1])} in ${pc.years[pc.years.length - 1]}, and surveys find it heavier for low incomes (DREES, 2011: 61% of disposable income for households below the poverty line against 23% for affluent households). The asset-mix chart uses WID's older composition series, which does not add up exactly to today's net wealth figures; read it for trends.`;
+  }
+
+  // ---------- hero: population bar vs pie bar, joined by ribbons ----------
+  const hero = { concept: "hweal", year: null, timer: null };
+  const HERO_NAME = { hweal: "wealth", ptinc: "income before tax", diinc: "income after tax and public services" };
+
+  function nearestYear(c, y) {
+    let best = c.years[0];
+    for (const x of c.years) if (x <= y) best = x;
+    return best;
+  }
+
+  // Share of adults, counted from the poorest, whose combined holdings equal `target`.
+  function poorestHolding(c, i, target) {
+    const bins = c.gp.bins.map((b, j) => { const [lo, hi] = b.slice(1).split("p").map(Number); return { lo, hi, m: c.gp.avg[j][i] * (hi - lo) }; });
+    return PieCore.poorestHolding(bins, target);
+  }
+
+  function renderHero() {
+    const c = D.concepts[hero.concept], y = nearestYear(c, hero.year), i = yi(c, y), keys = layerKeys();
+    const box = document.getElementById("hero-chart");
+    box.innerHTML = "";
+    const W = Math.max(300, box.clientWidth), narrow = W < 640;
+    const H = narrow ? 300 : 320, popY = 52, popH = 20, pieY = H - 78, pieH = 34;
+    const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, height: H, role: "img", "aria-label": `Share of adults versus share of ${HERO_NAME[hero.concept]}, ${y}` }, box);
+    const defs = el("defs", {}, svg);
+    let px = 0, sx = 0;
+    const segs = keys.map((k, li) => {
+      const L = c.layers[k], w = width(L) * W, s = (L.share[i] || 0) * W;
+      const seg = { k, li, p0: px, p1: px + w, s0: sx, s1: sx + s, share: L.share[i], pop: width(L) };
+      px += w; sx += s;
+      return seg;
+    });
+    el("text", { x: 0, y: popY - 10, class: "big" }, svg).textContent = "Adults, poorest to richest";
+    el("text", { x: 0, y: pieY + pieH + 22, class: "big" }, svg).textContent = `Their share of all ${HERO_NAME[hero.concept]}`;
+    segs.forEach(sg => {
+      const g = el("linearGradient", { id: `rib${sg.li}`, x1: "0", y1: "0", x2: "0", y2: "1" }, defs);
+      el("stop", { offset: "0", style: `stop-color:${color(sg.li)};stop-opacity:0.35` }, g);
+      el("stop", { offset: "1", style: `stop-color:${color(sg.li)};stop-opacity:0.8` }, g);
+      const y0 = popY + popH, y1 = pieY, ym = (y0 + y1) / 2;
+      const p1 = Math.max(sg.p1, sg.p0 + 0.6);
+      const d = `M${sg.p0},${y0} C${sg.p0},${ym} ${sg.s0},${ym} ${sg.s0},${y1} L${sg.s1},${y1} C${sg.s1},${ym} ${p1},${ym} ${p1},${y0} Z`;
+      el("path", { d, style: `fill:url(#rib${sg.li})` }, svg);
+      el("rect", { x: sg.p0, y: popY, width: Math.max(0.6, sg.p1 - sg.p0), height: popH, style: `fill:${color(sg.li)}` }, svg);
+      el("rect", { x: sg.s0, y: pieY, width: Math.max(0.6, sg.s1 - sg.s0 - 1.5), height: pieH, rx: 2, style: `fill:${color(sg.li)}` }, svg);
+    });
+    // Population labels: the two big slices, then one bracket for the richest 10%.
+    const lab = (x, y, t, anchor = "middle", cls = "") => { const e = el("text", { x, y, "text-anchor": anchor, class: cls }, svg); e.textContent = t; return e; };
+    lab(segs[0].p1 / 2, popY + popH - 5, "Poorest 50%", "middle", "big").style.fill = "#0b1322";
+    lab((segs[1].p0 + segs[1].p1) / 2, popY + popH - 5, "Next 40%", "middle", "big").style.fill = "#0b1322";
+    const t0 = segs[2].p0;
+    el("path", { d: `M${t0},${popY - 4} L${t0},${popY - 8} L${W},${popY - 8} L${W},${popY - 4}`, style: "fill:none;stroke:var(--hero-ink-2);stroke-width:1" }, svg);
+    lab(W, popY - 14, narrow ? "Richest 10%" : "Richest 10% (the three richest slices are too thin to see)", "end");
+    // Pie labels: share of each slice where it fits, otherwise grouped.
+    let rest = 0, restFrom = null;
+    segs.forEach(sg => {
+      const wpx = sg.s1 - sg.s0;
+      if (wpx >= (narrow ? 34 : 44)) {
+        lab((sg.s0 + sg.s1) / 2, pieY + pieH / 2 + 5, pct(sg.share), "middle", "big").style.fill = "#0b1322";
+      } else { rest += sg.share; if (restFrom == null) restFrom = sg.s0; }
+    });
+    const top = segs[segs.length - 1];
+    el("line", { x1: (top.s0 + top.s1) / 2, x2: (top.s0 + top.s1) / 2, y1: pieY + pieH + 2, y2: pieY + pieH + 34, style: "stroke:var(--hero-ink-2);stroke-width:1" }, svg);
+    lab(Math.min(W, (top.s0 + top.s1) / 2), pieY + pieH + 46, `Richest 0.001%: ${pct(top.share)}`, (top.s0 + top.s1) / 2 > W - 120 ? "end" : "middle", "big");
+    document.getElementById("hero-legend").innerHTML = segs.map(sg => `<span><i style="background:${color(sg.li)}"></i>${LAYER_LABEL[sg.k]} <b>${pct(sg.share)}</b></span>`).join("");
+    const est = c.extrapolated_from && y >= c.extrapolated_from;
+    const estEl = document.getElementById("hero-estimate");
+    estEl.hidden = !est;
+    estEl.textContent = est ? `estimate, extended from ${c.extrapolated_from - 1} data` : "";
+    // Caption.
+    const n = adults(y) * 1e-5, eq = poorestHolding(c, i, top.share);
+    const bot = segs[0];
+    document.getElementById("hero-year").textContent = y;
+    document.getElementById("hero-range").value = y;
+    document.getElementById("hero-caption").innerHTML =
+      `In ${y}, the poorest half of adults (${people(adults(y) / 2)} people) held <span class="hl">${pct(bot.share)}</span> of all ${HERO_NAME[hero.concept]}. ` +
+      `The richest 0.001%, about ${people(n)} people, held <span class="hl">${pct(top.share)}</span>` +
+      (eq < 0.99 ? `: as much as the poorest ${pct(eq)} of adults put together (${people(adults(y) * eq)} people${eqRange(c, i, y)}).${hero.concept === "hweal" ? " Many of the poorest own very little or owe more than they own." : ""}` : ".") +
+      "";
+    document.getElementById("hero-note").innerHTML =
+      (hero.concept === "hweal" && y >= D.concepts.hweal.scenarios.forbes_calibrated_from ? `The richest group's figure is the least certain on this page${heroRange(y)}; WID adjusts it to Forbes billionaire figures since 1988 (chapter 05). ` : "") +
+      (est ? `<span style="color:#ffd27a">${y} is an estimate that WID extends from earlier data and will revise.</span>` : "");
+  }
+
+  // What Forbes counts for French billionaires, as a share of WID's total wealth (a floor for the top 0.001%).
+  function forbesFloor(y) {
+    const fb = (D.rich_lists.forbes_france_billionaires || {})[y], c = D.concepts.hweal;
+    if (!fb) return null;
+    const eurv = parseFloat(fb.total_eur_bn), usd = parseFloat(fb.total_usd_bn), fx = D.eur_per_usd[y];
+    const nominal = isFinite(eurv) ? eurv * 1e9 : (isFinite(usd) && fx ? usd * 1e9 * fx : null);
+    if (nominal == null || !D.deflator[y]) return null;
+    const i = yi(c, y), T = Object.values(c.layers).reduce((s, L) => s + L.avg[i] * width(L), 0) * adults(y);
+    return { share: nominal / D.deflator[y] / T, n: fb.n_billionaires };
+  }
+
+  // Range of the top 0.001% wealth share in year y: WID, the Forbes floor and
+  // the scenarios within published assumptions.
+  function topRange(y) {
+    const sc = D.concepts.hweal.scenarios, c = D.concepts.hweal;
+    const vals = ["dwa_lower", "ggp_central", "ggp_low"].map(n => { const j = sc.years[n].indexOf(y); return j < 0 ? null : sc.layers[n]["p99.999p100"][j]; }).filter(v => v != null);
+    vals.push(c.layers["p99.999p100"].share[yi(c, y)]);
+    const f = forbesFloor(y);
+    if (f) vals.push(f.share);
+    const j = sc.years.no_cut.indexOf(y);
+    return { lo: Math.min(...vals), hi: Math.max(...vals), floor: f, noCut: j >= 0 ? sc.layers.no_cut["p99.999p100"][j] : null, n: vals.length };
+  }
+
+  // The same comparison under the other estimates of the very top. Scenarios
+  // rescale the bottom of the distribution uniformly, so WID's cumulative
+  // curve applies with the target divided by the bottom half's rescaling.
+  function eqRange(c, i, y) {
+    if (hero.concept !== "hweal") return "";
+    const sc = c.scenarios, wid50 = c.layers.p0p50.share[i];
+    const vals = [];
+    for (const n of ["dwa_lower", "ggp_low"]) {
+      const j = sc.years[n].indexOf(y); if (j < 0) continue;
+      vals.push(poorestHolding(c, i, sc.layers[n]["p99.999p100"][j] * wid50 / sc.layers[n].p0p50[j]));
+    }
+    if (!vals.length) return "";
+    vals.push(poorestHolding(c, i, c.layers["p99.999p100"].share[i]));
+    return `; ${pct(Math.min(...vals))} to ${pct(Math.max(...vals))} with other estimates`;
+  }
+
+  function heroRange(y) {
+    const r = topRange(y);
+    if (r.n < 2) return "";
+    return ` (other estimates: ${pct(r.lo)} to ${pct(r.hi)}${r.floor ? `, the low end being what Forbes counts for ${r.floor.n} billionaires alone` : ""}${r.noCut != null ? `; ${pct(r.noCut)} under assumptions beyond published ones` : ""})`;
+  }
+
+  function setHeroConcept(code) {
+    hero.concept = code;
+    const c = D.concepts[code], r = document.getElementById("hero-range");
+    r.min = c.years[0]; r.max = c.years[c.years.length - 1];
+    if (hero.year == null || hero.year > +r.max || hero.year < +r.min) hero.year = +r.max;
+    document.querySelectorAll("[data-hc]").forEach(b => b.setAttribute("aria-pressed", b.dataset.hc === code ? "true" : "false"));
+    renderHero();
+  }
+
+  function bindHero() {
+    document.querySelectorAll("[data-hc]").forEach(b => b.addEventListener("click", () => {
+      document.querySelector(`#concept button[data-c="${b.dataset.hc}"]`).click();
+    }));
+    const r = document.getElementById("hero-range"), play = document.getElementById("play");
+    // Step to the next year with data in the direction moved, so arrow keys never get stuck.
+    r.addEventListener("input", () => { hero.year = PieCore.stepYear(D.concepts[hero.concept].years, hero.year, +r.value); renderHero(); });
+    const stop = () => { clearInterval(hero.timer); hero.timer = null; play.textContent = "▶ Play"; document.getElementById("hero-caption").setAttribute("aria-live", "polite"); };
+    play.addEventListener("click", () => {
+      if (hero.timer) return stop();
+      const c = D.concepts[hero.concept];
+      if (hero.year >= c.years[c.years.length - 1]) hero.year = c.years[0];
+      play.textContent = "❚❚ Pause";
+      document.getElementById("hero-caption").setAttribute("aria-live", "off");
+      hero.timer = setInterval(() => {
+        const c2 = D.concepts[hero.concept], next = c2.years.find(x => x > hero.year);
+        if (next == null) return stop();
+        hero.year = next; renderHero();
+      }, matchMedia("(prefers-reduced-motion: reduce)").matches ? 700 : 110);
+    });
+  }
+
+  // ---------- chapter rail ----------
+  const TERMS = {
+    wid: "World Inequality Database (WID.world): a research database that splits each country's whole national income and wealth across the population, combining tax records, surveys and national accounts.",
+    insee: "INSEE: France's national statistics office.",
+    ecb: "ECB / Banque de France: the European Central Bank and France's central bank, which publish household wealth accounts by group of households.",
+    ipp: "Institut des politiques publiques (IPP): a French research institute that studies taxes and public policy using administrative data.",
+    dvf: "DVF (Demandes de valeurs foncières): the open register of property sales in France, with prices."
+  };
+  function bindTerms() {
+    document.querySelectorAll(".term[data-term]").forEach(t => {
+      const def = TERMS[t.dataset.term]; if (!def) return;
+      t.setAttribute("data-def", def); t.setAttribute("tabindex", "0");
+    });
+    document.querySelectorAll(".term").forEach(t => t.setAttribute("aria-label", `${t.textContent}. ${t.dataset.def}`));
+  }
+  function bindExperts() {
+    document.querySelectorAll("details.expert").forEach(d => d.addEventListener("toggle", () => {
+      if (d.open) { renderAll(); renderTop(); renderCrosscheck(); renderHousing(); }
+    }));
+  }
+
+  function bindAdvanced() {
+    const adv = document.getElementById("adv");
+    document.addEventListener("click", (e) => { if (adv.open && !adv.contains(e.target)) adv.open = false; });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && adv.open) { adv.open = false; adv.querySelector("summary").focus(); } });
+  }
+
+  function bindRail() {
+    const links = [...document.querySelectorAll("#rail a")];
+    if (!("IntersectionObserver" in window)) return;
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        links.forEach(a => a.classList.toggle("active", a.getAttribute("href") === `#${e.target.id}`));
+      });
+    }, { rootMargin: "-30% 0px -60% 0px" });
+    links.forEach(a => { const s = document.querySelector(a.getAttribute("href")); if (s) io.observe(s); });
+  }
+
+  function renderStatus() {
+    const parts = [];
+    if (state.concept === "hweal" && state.scenario !== "wid") parts.push(document.querySelector(`#scenario option[value="${state.scenario}"]`).textContent);
+    if (state.prices === "cpi") parts.push("consumer prices");
+    if (state.smooth > 1) parts.push("3-year averages");
+    document.getElementById("status").textContent = parts.length ? `Active: ${parts.join(" · ")}` : "";
+  }
+
+  // ---------- controls ----------
+  function fillYears() {
+    document.getElementById("scenario").disabled = state.concept !== "hweal";
+    const ys = base().years;
+    if (!ys.includes(state.to)) state.to = ys[ys.length - 1];
+    if (!ys.includes(state.from) || state.from >= state.to) state.from = ys.includes(1990) && 1990 < state.to ? 1990 : ys[0];
+    const opts = (sel, cond) => ys.map(y => `<option value="${y}"${y === sel ? " selected" : ""}${cond(y) ? "" : " disabled"}>${y}</option>`).join("");
+    document.getElementById("from").innerHTML = opts(state.from, y => y < state.to);
+    document.getElementById("to").innerHTML = opts(state.to, y => y > state.from);
+  }
+  function renderAll() { renderPie(); renderChange(); renderSensitivity(); renderLevels(); renderGIC(); renderStatus(); }
+  function bind() {
+    document.querySelectorAll("#concept button").forEach(b => b.addEventListener("click", () => {
+      state.concept = b.dataset.c;
+      document.querySelectorAll("#concept button").forEach(x => x.setAttribute("aria-pressed", x === b ? "true" : "false"));
+      fillYears(); renderAll(); setHeroConcept(state.concept);
+    }));
+    document.getElementById("from").addEventListener("change", (e) => { state.from = +e.target.value; fillYears(); renderAll(); });
+    document.getElementById("to").addEventListener("change", (e) => { state.to = +e.target.value; fillYears(); renderAll(); });
+    document.getElementById("scenario").addEventListener("change", (e) => { state.scenario = e.target.value; renderAll(); });
+    document.getElementById("smooth").addEventListener("change", (e) => { state.smooth = +e.target.value; renderAll(); });
+    document.getElementById("prices").addEventListener("change", (e) => { state.prices = e.target.value; renderAll(); });
+    let t; window.addEventListener("resize", () => { clearTimeout(t); t = setTimeout(() => { renderHero(); renderAll(); renderTop(); renderCrosscheck(); renderHousing(); }, 150); });
+  }
+
+  fetch("data/france.json").then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); }).then(d => {
+    D = d;
+    // Deep links: #ptinc, #diinc~cpi, #hweal~no_cut~smooth3 (bare tokens joined by ~).
+    for (const tok of location.hash.slice(1).split("~").filter(Boolean)) {
+      const own = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
+      if (own(D.concepts, tok)) state.concept = tok;
+      else if (tok === "cpi") state.prices = "cpi";
+      else if (tok === "smooth3") state.smooth = 3;
+      else if (own(D.concepts.hweal.scenarios.params, tok)) state.scenario = tok;
+    }
+    document.querySelectorAll("#concept button").forEach(x => x.setAttribute("aria-pressed", x.dataset.c === state.concept ? "true" : "false"));
+    document.getElementById("scenario").value = state.scenario;
+    document.getElementById("prices").value = state.prices;
+    document.getElementById("smooth").value = String(state.smooth);
+    document.getElementById("built").textContent = `${d.meta.built} from WID.world (prices of ${d.meta.price_base_year})`;
+    fillYears(); bind(); bindHero(); bindRail(); bindAdvanced(); bindTerms(); bindExperts(); setHeroConcept(state.concept); renderFindings(); renderAll(); renderTop(); renderTopIncome(); renderCrosscheck(); renderHousing();
+  }).catch(err => {
+    document.getElementById("findings").innerHTML = `<p class="err">The data file could not be loaded (${err.message}). Serve the site folder over HTTP (python3 -m http.server -d site) after running the pipeline; opening index.html directly from disk does not work.</p>`;
+  });
+})();
+</script>
+</body>
+</html>
